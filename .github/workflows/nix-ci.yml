@@ -6,14 +6,18 @@ on:
       - "flake.nix"
       - "**/*.nix"
       - "flake.lock"
+      - "manifests/**"
+      - "scripts/**"
       - ".github/workflows/nix-ci.yml"
   push:
     branches:
-      - main
+      - master
     paths:
       - "flake.nix"
       - "**/*.nix"
       - "flake.lock"
+      - "manifests/**"
+      - "scripts/**"
       - ".github/workflows/nix-ci.yml"
 
 jobs:
@@ -37,9 +41,28 @@ jobs:
         run: nix flake show
 
       - name: Build dev shell
-        run: nix develop .#default --command bash -lc 'command -v talosctl talhelper kubectl jq yq sops age'
+        run: nix develop .#default --command bash -lc 'command -v talosctl talhelper kubectl kubeconform jq yq sops age'
 
       - name: Smoke test Talos tooling
         run: |
           nix develop .#default --command talosctl version --client
           nix develop .#default --command talhelper --help >/dev/null
+
+  manifests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v15
+
+      - name: Configure Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Validate manifests
+        run: nix develop .#default --command bash ./scripts/validate-manifests.sh

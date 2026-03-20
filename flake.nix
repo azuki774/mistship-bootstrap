@@ -26,6 +26,7 @@
               age
               jq
               kubectl
+              kubeconform
               sops
               talhelper
               talosctl
