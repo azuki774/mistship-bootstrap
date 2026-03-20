@@ -1,0 +1,9 @@
+# 077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2
+# https://factory.talos.dev/image/077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2/v1.12.6/metal-amd64.qcow2
+customization:
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/iscsi-tools
+      - siderolabs/qemu-guest-agent
+      - siderolabs/tailscale
+      - siderolabs/util-linux-tools
