@@ -15,4 +15,4 @@
 
 このディレクトリに `*.yaml`、`*.yml`、`*.json` がまだ無い場合、CI の apply step は自動的にスキップされます。
 
-Calico を置く場合は、`manifests/infra/calico/` 配下を先に ordered apply し、その後で残りの `manifests/infra/` を適用します。
+Calico を置く場合は、`manifests/infra/calico/` 配下を [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) で先に ordered apply し、その後で残りの `manifests/infra/` を適用します。`kubernetes-services-endpoint` ConfigMap は current `kubeconfig` から動的に生成するため、`manifests/infra/calico/` の raw apply は前提にしません。

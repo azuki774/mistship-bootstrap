@@ -25,16 +25,10 @@ fi
 
 built_in_files=(
   "$calico_dir/00-namespace.yaml" \
-  "$calico_dir/10-kubernetes-services-endpoint.yaml" \
   "$calico_dir/20-tigera-operator.yaml"
 )
 
 kubeconform -strict -summary "${built_in_files[@]}"
-
-yq eval -e '.apiVersion == "v1"' "$calico_dir/10-kubernetes-services-endpoint.yaml" >/dev/null
-yq eval -e '.kind == "ConfigMap"' "$calico_dir/10-kubernetes-services-endpoint.yaml" >/dev/null
-yq eval -e '.data.KUBERNETES_SERVICE_HOST == "localhost"' "$calico_dir/10-kubernetes-services-endpoint.yaml" >/dev/null
-yq eval -e '.data.KUBERNETES_SERVICE_PORT == "7445"' "$calico_dir/10-kubernetes-services-endpoint.yaml" >/dev/null
 
 yq eval -e '.apiVersion == "operator.tigera.io/v1"' "$calico_dir/30-installation.yaml" >/dev/null
 yq eval -e '.kind == "Installation"' "$calico_dir/30-installation.yaml" >/dev/null

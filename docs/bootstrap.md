@@ -263,7 +263,7 @@ Calico の apply 順は次の順に固定します。
 1. `APIServer`
 1. `FelixConfiguration`
 
-`kubernetes-services-endpoint` は KubePrism 前提で `localhost:7445` を使います。
+`kubernetes-services-endpoint` は [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) が現在の `kubeconfig` から API endpoint を解決して生成します。single-node control plane では通常 `https://<CONTROL_PLANE_IP>:6443` になります。
 `Installation` では `linuxDataplane: BPF` を使い、`kubeProxyManagement: Enabled` にして Calico から `kube-proxy` を無効化します。
 
 Calico の導入は次で実行します。
@@ -338,7 +338,7 @@ kubectl --kubeconfig "$KUBECONFIG" get tigerastatus
 kubectl --kubeconfig "$KUBECONFIG" get crd | rg 'operator.tigera.io|projectcalico.org'
 ```
 
-`kubeconfig` で API に到達できない場合は、`localhost:7445` と TalOS の `kubePrism` 設定、または `cluster.network.cni.name: none` / `cluster.proxy.disabled: true` の抜けを疑います。
+`kubeconfig` で API に到達できない場合は、`kubeconfig` に入っている API endpoint と TalOS の control plane endpoint、または `cluster.network.cni.name: none` / `cluster.proxy.disabled: true` の抜けを疑います。
 
 ## 実施順の要点
 

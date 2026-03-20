@@ -86,7 +86,7 @@ talosctl bootstrap \
 Kubernetes API が上がったら、`kubeconfig` を取得して Calico を staged apply します。
 
 順序は [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) に固定しています。
-`kubernetes-services-endpoint` は `localhost:7445` を使い、Calico の eBPF bootstrap と TalOS の KubePrism をつなぎます。
+`kubernetes-services-endpoint` は [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) が `kubeconfig` から解決した API endpoint で生成します。single-node control plane では通常 `https://<CONTROL_PLANE_IP>:6443` を使います。
 
 ```bash
 KUBECONFIG="$KUBECONFIG" nix develop .#default --command ./scripts/apply-calico.sh
@@ -132,7 +132,7 @@ kubectl --kubeconfig "$KUBECONFIG" -n calico-system get pods -o wide
 
 Calico が起動しない場合は、まず次を確認します。
 
-- `localhost:7445` が KubePrism と一致しているか
+- `kubeconfig` の API endpoint が実際の control plane endpoint と一致しているか
 - `cluster.network.cni.name: none` が入っているか
 - `cluster.proxy.disabled: true` が入っているか
 - 旧 `Flannel` / `kube-proxy` の残骸が node に残っていないか
