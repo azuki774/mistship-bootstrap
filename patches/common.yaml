@@ -1,0 +1,22 @@
+machine:
+  install:
+    disk: /dev/sda
+    image: factory.talos.dev/installer/077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2:v1.12.6
+    wipe: false
+    grubUseUKICmdline: true
+  features:
+    diskQuotaSupport: true
+    kubePrism:
+      enabled: true
+      port: 7445
+    hostDNS:
+      enabled: true
+      forwardKubeDNSToHost: true
+cluster:
+  clusterName: mistship
+  network:
+    dnsDomain: cluster.local
+    podSubnets:
+      - 10.244.0.0/16
+    serviceSubnets:
+      - 10.96.0.0/12

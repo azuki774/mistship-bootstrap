@@ -33,11 +33,13 @@
             ];
 
             shellHook = ''
-              export MISTSHIP_SECRETS_DIR="''${MISTSHIP_SECRETS_DIR:-$HOME/secure/mistship}"
+              repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+              export MISTSHIP_SECRETS_DIR="''${MISTSHIP_SECRETS_DIR:-$repo_root/.secret}"
               export TALOSCONFIG="''${TALOSCONFIG:-$MISTSHIP_SECRETS_DIR/talosconfig}"
               export KUBECONFIG="''${KUBECONFIG:-$MISTSHIP_SECRETS_DIR/kubeconfig}"
 
               echo "mistship Talos shell"
+              echo "  REPO_ROOT=$repo_root"
               echo "  MISTSHIP_SECRETS_DIR=$MISTSHIP_SECRETS_DIR"
               echo "  TALOSCONFIG=$TALOSCONFIG"
               echo "  KUBECONFIG=$KUBECONFIG"
