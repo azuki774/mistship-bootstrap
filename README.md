@@ -1,2 +1,124 @@
 # mistship
-TalOS manage
+
+TalOS ベースのインフラを管理するためのリポジトリです。
+
+このリポジトリは Public repository として運用します。そのため、IP アドレス、FQDN、秘密鍵、TalOS 設定に含まれる機微情報、クラスタ参加トークン、Kubeconfig、Tailscale の認証情報などは Git に含めません。
+
+## 基本方針
+
+- Git には「再現可能な定義」と「手順」だけを置く
+- 環境固有値や秘匿情報は Git の外で管理する
+- そのまま適用すると本番情報が見えるファイルはコミットしない
+- コミットしてよいのは、テンプレート、サンプル、生成手順、公開可能な設定のみ
+
+## このリポジトリで管理するもの
+
+- TalOS Image Factory 向けの公開可能なイメージ定義
+- TalOS / Kubernetes の構成テンプレート
+- 構築・更新・復旧の手順書
+- 必要なコマンド例とファイル配置ルール
+
+現時点では [`image.yml`](/home/azuki/work/mistship/image.yml) に TalOS イメージ拡張の定義を置いています。これは公開可能な情報のみで構成します。
+
+## Git に含めないもの
+
+以下は公開リポジトリに含めません。
+
+- グローバル IP、プライベート IP、VIP、ノード一覧
+- 実運用のホスト名、DNS 名、ドメイン名
+- `talosconfig`
+- `kubeconfig`
+- 秘密鍵、証明書、CSR、age key、Tailscale auth key
+- TalOS machine config のうち機微情報を含む実体ファイル
+- bootstrap token、join token、API token、クラウド認証情報
+- 実運用環境を特定できる inventory や配布物
+
+補足:
+IP アドレスは一般的な意味での秘密情報ではない場合もありますが、このリポジトリでは「公開しない運用情報」として扱います。
+
+## Git に含めてよいもの
+
+- 伏せ字またはダミー値に置き換えたサンプル
+- `.example` や `.template` 形式のテンプレート
+- `image.yml` のような公開可能な定義
+- 手順書、設計メモ、運用ルール
+- 実値を含まないスクリプトや生成コマンド
+
+## 推奨運用
+
+環境固有値は次のいずれかで管理します。
+
+- ローカル専用ファイル
+- パスワードマネージャや Secret Manager
+- 暗号化された別リポジトリ
+- CI/CD の Secret Store
+
+このリポジトリには、実値ではなく以下を置きます。
+
+- `*.example`
+- `*.template`
+- 生成に必要な説明
+- 必須パラメータ一覧
+
+## 推奨ファイル設計
+
+例:
+
+```text
+.
+├── README.md
+├── image.yml
+├── docs/
+│   ├── bootstrap.md
+│   └── operations.md
+├── templates/
+│   ├── controlplane.yaml.example
+│   └── worker.yaml.example
+└── .gitignore
+```
+
+ローカルまたは別管理に置くものの例:
+
+```text
+~/secure/mistship/
+├── nodes.yaml
+├── talosconfig
+├── kubeconfig
+├── controlplane.yaml
+├── worker.yaml
+└── tailscale-authkey.txt
+```
+
+## ドキュメントを書くときのルール
+
+- 実 IP は書かず、`192.0.2.10` や `198.51.100.0/24` などの予約済みサンプル値を使う
+- 実ドメインは書かず、`example.com` を使う
+- 実鍵や実トークンは貼らない
+- 実ファイル名を示したい場合は `.example` を付ける
+- コマンド例には環境変数名やプレースホルダを使う
+
+例:
+
+```bash
+talosctl --talosconfig "$TALOSCONFIG" -n "$CONTROL_PLANE_IP" version
+kubectl --kubeconfig "$KUBECONFIG" get nodes
+```
+
+## 作業時チェックリスト
+
+コミット前に次を確認します。
+
+- 実 IP アドレスが入っていない
+- 実ホスト名、実ドメイン名が入っていない
+- `*.key`, `*.pem`, `talosconfig`, `kubeconfig` を含んでいない
+- トークンやパスワード文字列を貼っていない
+- サンプル値がダミー値に置き換わっている
+
+## 今後の整備候補
+
+- `.gitignore` の整備
+- `templates/` 配下への `.example` 追加
+- 機密情報の保管場所と生成手順の明文化
+- TalOS 初期構築手順と更新手順の分離
+
+このリポジトリでは、公開できる情報だけでインフラの構造と再現手順を共有し、実運用に必要な値は Git の外で管理します。
