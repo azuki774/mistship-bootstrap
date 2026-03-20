@@ -19,6 +19,35 @@
       devShells = forAllSystems (system:
         let
           pkgs = import nixpkgs { inherit system; };
+          talosctlAsset =
+            if system == "x86_64-linux" then {
+              suffix = "linux-amd64";
+              hash = "sha256-TEGjsQsHUpLmSxgig9VY6djpNfQyOd4e1OSxQ1lZPvs=";
+            } else if system == "aarch64-linux" then {
+              suffix = "linux-arm64";
+              hash = "sha256-TSglTubqmUu7C8pJsgR9aczJD6n/sgBBlRQygEQ62hY=";
+            } else if system == "x86_64-darwin" then {
+              suffix = "darwin-amd64";
+              hash = "sha256-hsw6NDUV+sNAQvDR0vnn2cZ9hXieFIqRO13gvzIJMJU=";
+            } else if system == "aarch64-darwin" then {
+              suffix = "darwin-arm64";
+              hash = "sha256-JZ8MrFSSUqKfOXA9mSkXR5zskJoOqBE8OojUACs5UoU=";
+            } else
+              throw "Unsupported system for talosctl pin: ${system}";
+          talosctlPinned = pkgs.stdenvNoCC.mkDerivation rec {
+            pname = "talosctl";
+            version = "1.12.6";
+            src = pkgs.fetchurl {
+              url = "https://github.com/siderolabs/talos/releases/download/v${version}/talosctl-${talosctlAsset.suffix}";
+              hash = talosctlAsset.hash;
+            };
+
+            dontUnpack = true;
+
+            installPhase = ''
+              install -Dm755 "$src" "$out/bin/talosctl"
+            '';
+          };
         in
         {
           default = pkgs.mkShell {
@@ -29,7 +58,7 @@
               kubeconform
               sops
               talhelper
-              talosctl
+              talosctlPinned
               yq-go
             ];
 
