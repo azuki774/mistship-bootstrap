@@ -69,6 +69,27 @@ nix develop --command talhelper --help
 
 `flake.lock` はコミットして、チーム内で同じ `nixpkgs` リビジョンを使う前提にします。更新したい時だけ `nix flake update` を実行します。
 
+## GitHub Actions での TalOS 更新
+
+[`talos-update.yml`](/home/azuki/work/mistship/.github/workflows/talos-update.yml) は、`master` への push 時に TalOS 関連ファイルが変わった場合と、GitHub Actions UI からの手動実行時に control plane の machine config を更新します。
+
+この workflow は S3 `ap-northeast-1` から次のファイルを取得して CI 内で使います。
+
+- `mistship/.env`
+- `mistship/cluster-secrets.yaml`
+
+必要な GitHub Actions secrets:
+
+- `SECERT_ACCESS_KEY_ID`
+- `SECRET_BUCKET_ACEESS_KEY`
+- `SECRET_BUCKET_NAME`
+
+CI では取得した secret から `talosconfig` と machine config を再生成し、`talosctl apply-config` で既存クラスタへ反映します。更新対象は現時点では control plane のみです。
+
+この workflow は GitHub Actions の `Development` environment を使う前提です。environment secrets や protection rules を使いたい場合は、この名前で GitHub 側に設定してください。
+
+workflow では secret の内容をログへ出さず、`.secret` を artifact 化せず、job 終了時に `.secret` を削除します。
+
 ## Git に含めないもの
 
 以下は公開リポジトリに含めません。

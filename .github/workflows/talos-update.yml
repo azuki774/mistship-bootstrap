@@ -1,0 +1,171 @@
+name: Talos Update
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "patches/common.yaml"
+      - "patches/controlplane.yaml"
+      - "image.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - ".github/workflows/talos-update.yml"
+
+concurrency:
+  group: talos-update-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  update-control-plane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: Development
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.SECERT_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_BUCKET_ACEESS_KEY }}
+          aws-region: ap-northeast-1
+          mask-aws-account-id: true
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v15
+
+      - name: Configure Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - name: Prepare secret workspace
+        run: |
+          set -euo pipefail
+          mkdir -p .secret/generated .secret/nodes
+
+      - name: Download cluster inputs
+        env:
+          SECRET_BUCKET_NAME: ${{ secrets.SECRET_BUCKET_NAME }}
+        run: |
+          set -euo pipefail
+          set +x
+          aws s3 cp --only-show-errors "s3://$SECRET_BUCKET_NAME/mistship/.env" .secret/.env
+          aws s3 cp --only-show-errors "s3://$SECRET_BUCKET_NAME/mistship/cluster-secrets.yaml" .secret/cluster-secrets.yaml
+          chmod 600 .secret/.env .secret/cluster-secrets.yaml
+
+      - name: Load cluster settings
+        run: |
+          set -euo pipefail
+          set +x
+
+          read_env() {
+            local key="$1"
+            local value
+
+            value="$(grep -m1 "^${key}=" .secret/.env | cut -d= -f2- || true)"
+            if [[ -z "$value" ]]; then
+              return 1
+            fi
+
+            value="${value%\"}"
+            value="${value#\"}"
+            value="${value%\'}"
+            value="${value#\'}"
+            printf "%s\n" "$value"
+          }
+
+          CLUSTER_NAME="$(read_env CLUSTER_NAME)"
+          CONTROL_PLANE_IP="$(read_env CONTROL_PLANE_IP)"
+          INSTALL_DISK="$(read_env INSTALL_DISK)"
+          INSTALL_IMAGE="$(read_env INSTALL_IMAGE || true)"
+
+          if [[ -z "$INSTALL_IMAGE" || "$INSTALL_IMAGE" == *'$'* ]]; then
+            TALOS_VERSION="$(read_env TALOS_VERSION)"
+            SCHEMATIC_ID="$(read_env SCHEMATIC_ID)"
+            INSTALL_IMAGE="factory.talos.dev/installer/$SCHEMATIC_ID:$TALOS_VERSION"
+          fi
+
+          {
+            echo "MISTSHIP_SECRETS_DIR=$GITHUB_WORKSPACE/.secret"
+            echo "CLUSTER_SECRETS=$GITHUB_WORKSPACE/.secret/cluster-secrets.yaml"
+            echo "TALOSCONFIG=$GITHUB_WORKSPACE/.secret/talosconfig"
+            echo "GENERATED_CONFIG_DIR=$GITHUB_WORKSPACE/.secret/generated"
+            echo "CONTROL_PLANE_CONFIG=$GITHUB_WORKSPACE/.secret/nodes/controlplane.yaml"
+            echo "WORKER_CONFIG=$GITHUB_WORKSPACE/.secret/nodes/worker.yaml"
+            echo "CLUSTER_NAME=$CLUSTER_NAME"
+            echo "CONTROL_PLANE_IP=$CONTROL_PLANE_IP"
+            echo "INSTALL_DISK=$INSTALL_DISK"
+            echo "INSTALL_IMAGE=$INSTALL_IMAGE"
+          } >> "$GITHUB_ENV"
+
+      - name: Generate Talos artifacts
+        run: |
+          set -euo pipefail
+          nix develop .#default --command bash -lc '
+            set -euo pipefail
+            talosctl gen config "$CLUSTER_NAME" "https://$CONTROL_PLANE_IP:6443" \
+              --with-secrets "$CLUSTER_SECRETS" \
+              --install-disk "$INSTALL_DISK" \
+              --install-image "$INSTALL_IMAGE" \
+              --config-patch "@patches/common.yaml" \
+              --config-patch-control-plane "@patches/controlplane.yaml" \
+              --output "$GENERATED_CONFIG_DIR"
+
+            cp "$GENERATED_CONFIG_DIR/controlplane.yaml" "$CONTROL_PLANE_CONFIG"
+            cp "$GENERATED_CONFIG_DIR/worker.yaml" "$WORKER_CONFIG"
+            cp "$GENERATED_CONFIG_DIR/talosconfig" "$TALOSCONFIG"
+            chmod 600 "$CONTROL_PLANE_CONFIG" "$WORKER_CONFIG" "$TALOSCONFIG"
+          '
+
+      - name: Apply control plane config
+        run: |
+          set -euo pipefail
+          nix develop .#default --command bash -lc '
+            set -euo pipefail
+            talosctl apply-config \
+              --talosconfig "$TALOSCONFIG" \
+              --endpoints "$CONTROL_PLANE_IP" \
+              --nodes "$CONTROL_PLANE_IP" \
+              --file "$CONTROL_PLANE_CONFIG"
+          '
+
+      - name: Verify Talos API recovery
+        run: |
+          set -euo pipefail
+          nix develop .#default --command bash -lc '
+            set -euo pipefail
+
+            for attempt in $(seq 1 20); do
+              if talosctl version \
+                --talosconfig "$TALOSCONFIG" \
+                --endpoints "$CONTROL_PLANE_IP" \
+                --nodes "$CONTROL_PLANE_IP"
+              then
+                exit 0
+              fi
+
+              sleep 15
+            done
+
+            echo "Talos API did not recover after apply-config" >&2
+            exit 1
+          '
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          rm -rf .secret
