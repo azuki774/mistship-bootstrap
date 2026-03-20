@@ -124,6 +124,6 @@ kubectl apply -f "$calico_dir/32-felixconfiguration.yaml"
 
 rollout_status_or_dump deployment calico-kube-controllers calico-system 10m
 rollout_status_or_dump daemonset calico-node calico-system 10m
-rollout_status_or_dump deployment calico-apiserver calico-apiserver 10m
+rollout_status_or_dump deployment calico-apiserver calico-system 10m
 
 kubectl get tigerastatus
