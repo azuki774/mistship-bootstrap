@@ -38,7 +38,7 @@
 ### `Calico eBPF` を選ぶ理由
 
 - `NetworkPolicy` だけでなく、Pod networking と Service handling も一体で扱える
-- `kube-proxy` を外して dataplane を単純化できる
+- `kube-proxy` を外し、Service dataplane の責務を `Calico` に集約できる
 - 今回は保守性よりも、機能性と将来の拡張余地を優先する
 
 ## 実装上の前提
