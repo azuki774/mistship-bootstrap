@@ -22,6 +22,7 @@ concurrency:
 permissions:
   contents: read
   deployments: write
+  id-token: write
 
 jobs:
   update-control-plane:
