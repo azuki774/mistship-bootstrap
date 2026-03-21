@@ -162,6 +162,8 @@ cp "$GENERATED_CONFIG_DIR/talosconfig" "$TALOSCONFIG"
 - `cluster.network.cni.name: none`
 - `cluster.proxy.disabled: true`
 
+`patches/controlplane.yaml` では `cluster.allowSchedulingOnControlPlanes: true` を有効化し、single-node 期間は control plane に通常 workload も収容します。
+
 必要なら生成直後に endpoint もそろえます。
 
 ```bash

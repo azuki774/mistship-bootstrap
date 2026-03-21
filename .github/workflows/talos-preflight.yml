@@ -1,0 +1,47 @@
+name: Talos Preflight
+
+on:
+  pull_request:
+    paths:
+      - "flake.nix"
+      - "**/*.nix"
+      - "flake.lock"
+      - "patches/**"
+      - "manifests/**"
+      - "scripts/ci-talos-preflight.sh"
+      - "scripts/prepare-cluster-access.sh"
+      - "scripts/validate-manifests.sh"
+      - ".github/workflows/talos-preflight.yml"
+  push:
+    branches:
+      - master
+    paths:
+      - "flake.nix"
+      - "**/*.nix"
+      - "flake.lock"
+      - "patches/**"
+      - "manifests/**"
+      - "scripts/ci-talos-preflight.sh"
+      - "scripts/prepare-cluster-access.sh"
+      - "scripts/validate-manifests.sh"
+      - ".github/workflows/talos-preflight.yml"
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v21
+
+      - name: Configure Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: Run Talos preflight checks in dev shell
+        run: nix develop .#default --command bash ./scripts/ci-talos-preflight.sh

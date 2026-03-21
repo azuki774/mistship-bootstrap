@@ -10,7 +10,3 @@ command -v talosctl talhelper kubectl kubeconform jq yq sops age
 talosctl version --client
 talhelper --help >/dev/null
 echo "::endgroup::"
-
-echo "::group::Validate manifests"
-bash ./scripts/validate-manifests.sh
-echo "::endgroup::"
