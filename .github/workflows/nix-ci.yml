@@ -6,8 +6,7 @@ on:
       - "flake.nix"
       - "**/*.nix"
       - "flake.lock"
-      - "manifests/**"
-      - "scripts/**"
+      - "scripts/ci-nix-checks.sh"
       - ".github/workflows/nix-ci.yml"
   push:
     branches:
@@ -16,8 +15,7 @@ on:
       - "flake.nix"
       - "**/*.nix"
       - "flake.lock"
-      - "manifests/**"
-      - "scripts/**"
+      - "scripts/ci-nix-checks.sh"
       - ".github/workflows/nix-ci.yml"
 
 jobs:
