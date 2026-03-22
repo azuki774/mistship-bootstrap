@@ -276,7 +276,6 @@ KUBECONFIG="$KUBECONFIG" nix develop .#default --command ./scripts/apply-calico.
 ```
 
 `kube-proxy` が残っている場合は、Calico 側の管理対象になっていないかを確認します。`kube-proxy` が完全に不要な状態まで収束したら、`kube-system` から `kube-proxy` Pod が消えていることを確認します。
-旧 node を再利用した直後で `Flannel` の残骸確認が必要な場合は [`docs/flannel-cleanup.md`](/home/azuki/work/mistship/docs/flannel-cleanup.md) の inventory 手順を実行します。
 
 ## 8. Kubernetes 側を確認する
 
