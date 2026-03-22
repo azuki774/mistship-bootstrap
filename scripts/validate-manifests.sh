@@ -17,6 +17,10 @@ for file in "${yaml_files[@]}"; do
 done
 
 calico_dir="manifests/infra/calico"
+common_patch="patches/common.yaml"
+
+yq eval -e '.cluster.network.cni.name == "none"' "$common_patch" >/dev/null
+yq eval -e '.cluster.proxy.disabled == true' "$common_patch" >/dev/null
 
 if [[ ! -d "$calico_dir" ]]; then
   echo "Manifest YAML syntax is valid."

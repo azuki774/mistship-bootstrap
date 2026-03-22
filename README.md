@@ -25,6 +25,7 @@ control plane の初期起動手順は [`docs/bootstrap.md`](/home/azuki/work/mi
 
 既存 single-node クラスタを `Flannel + kube-proxy` から再構築で移行する手順は [`docs/networking-migration.md`](/home/azuki/work/mistship/docs/networking-migration.md) にまとめます。
 クラスタのネットワーク構成方針は [`docs/networking-stack.md`](/home/azuki/work/mistship/docs/networking-stack.md) にまとめます。
+残存 `Flannel` の cleanup と、新規 bootstrap で `Flannel` を使わないための固定点は [`docs/flannel-cleanup.md`](/home/azuki/work/mistship/docs/flannel-cleanup.md) にまとめます。
 Calico eBPF の Service dataplane を観測するデモ手順は [`manifests/infra/ebpf-demo/README.md`](/home/azuki/work/mistship/manifests/infra/ebpf-demo/README.md) にまとめます。
 
 machine config のうち公開可能な設定は [`patches/common.yaml`](/home/azuki/work/mistship/patches/common.yaml)、[`patches/controlplane.yaml`](/home/azuki/work/mistship/patches/controlplane.yaml)、[`patches/worker.yaml`](/home/azuki/work/mistship/patches/worker.yaml) で管理します。

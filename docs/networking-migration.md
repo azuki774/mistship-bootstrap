@@ -92,6 +92,18 @@ Kubernetes API が上がったら、`kubeconfig` を取得して Calico を stag
 KUBECONFIG="$KUBECONFIG" nix develop .#default --command ./scripts/apply-calico.sh
 ```
 
+Calico が `Ready` になったら、旧 `Flannel` の残骸を inventory します。
+
+```bash
+nix develop .#default --command ./scripts/cleanup-flannel.sh
+```
+
+削除が必要なら、棚卸し結果を確認してから次を実行します。
+
+```bash
+nix develop .#default --command ./scripts/cleanup-flannel.sh --delete
+```
+
 ## 6. 残りの infra を適用する
 
 Calico が安定したら、`manifests/infra/` 配下の公開可能な manifest を適用します。
@@ -127,6 +139,7 @@ kubectl --kubeconfig "$KUBECONFIG" -n calico-system get pods -o wide
 - Calico の各 component が `Ready`
 - `coredns` が Running
 - node が `Ready`
+- [`scripts/cleanup-flannel.sh`](/home/azuki/work/mistship/scripts/cleanup-flannel.sh) が空振りする
 
 ## 失敗時
 
