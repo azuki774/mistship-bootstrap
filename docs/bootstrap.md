@@ -267,6 +267,7 @@ Calico の apply 順は次の順に固定します。
 
 `kubernetes-services-endpoint` は [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) が現在の `kubeconfig` から API endpoint を解決して生成します。single-node control plane では通常 `https://<CONTROL_PLANE_IP>:6443` になります。
 `Installation` では `linuxDataplane: BPF` を使い、`kubeProxyManagement: Enabled` にして Calico から `kube-proxy` を無効化します。
+fresh bootstrap では [`patches/common.yaml`](/home/azuki/work/mistship/patches/common.yaml) の `cluster.network.cni.name: none` により TalOS managed `Flannel` を使いません。
 
 Calico の導入は次で実行します。
 
@@ -289,6 +290,7 @@ kubectl --kubeconfig "$KUBECONFIG" get pods -A -o wide
 - `kube-system` の control plane 関連 Pod が起動する
 - `coredns` が安定する
 - `kube-proxy` が残っていない
+- `kube-flannel` が残っていない
 - Calico の各 component が `Ready` になる
 
 ## 9. 残りの infra を適用する
