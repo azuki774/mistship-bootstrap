@@ -1,32 +1,20 @@
 # TalOS ネットワーク移行手順
 
-この手順は、既存の single-node クラスタを `Flannel + kube-proxy` から `TalOS + KubeSpan + Calico eBPF + kube-proxy disabled` に切り替えるための停止あり再構築手順です。
+既存の single-node クラスタを `Flannel + kube-proxy` から `KubeSpan + Calico eBPF` 前提の TalOS クラスタへ切り替えるための停止あり再構築手順です。
 
-このリポジトリでは live cutover は扱いません。既存クラスタの Pod や node を維持したまま段階的に CNI を差し替えるのではなく、クラスタを止めて再 bootstrap します。
+この repo では live cutover は扱いません。旧クラスタを止めて再 bootstrap します。
 
-## 前提
+## 流れ
 
-- 既存クラスタは single-node 構成である
-- 現在の `kube-system` には `kube-flannel` と `kube-proxy` がいる
-- control plane の実 IP と TalOS 設定は Git の外にある
-- 既存 workload をそのまま残す必要はない
+1. 現在の cluster 状態を記録する
+2. 既存 cluster を停止する
+3. [docs/bootstrap.md](bootstrap.md) に従って TalOS 設定を再生成する
+4. control plane に `apply-config --insecure` を流す
+5. `talosctl bootstrap` を 1 回だけ実行する
+6. `bash ./scripts/apply-bootstrap-manifests.sh` で Calico と Argo CD を入れる
+7. 必要なら worker を再追加する
 
-## 移行方針
-
-移行は次の順序で行います。
-
-1. 現在のクラスタ状態を記録する
-1. 既存クラスタを停止する
-1. TalOS machine config を `KubeSpan` と `Calico eBPF` 前提で再生成する
-1. control plane を再インストールする
-1. `talosctl bootstrap` を 1 回だけ実行する
-1. Calico を staged apply する
-1. Argo CD を含む bootstrap manifest を適用する
-1. worker を再追加する
-
-## 1. 現在の状態を記録する
-
-再構築前に、今の node と system Pod を確認しておきます。
+## 記録しておくもの
 
 ```bash
 kubectl --kubeconfig "$KUBECONFIG" get nodes -o wide
@@ -34,87 +22,31 @@ kubectl --kubeconfig "$KUBECONFIG" get pods -A -o wide
 kubectl --kubeconfig "$KUBECONFIG" get ds -A
 ```
 
-記録しておくべき点:
+見るポイント:
 
-- node 名
-- control plane の実 IP
-- `kube-flannel` と `kube-proxy` の稼働有無
-- 既存 workload が残っているか
+- control plane IP
+- `kube-flannel` と `kube-proxy` の有無
+- 残したい workload の有無
 
-## 2. 既存クラスタを停止する
-
-single-node なので、ここで旧クラスタを止めて再構築します。
-
-- 実 workload が必要なら先に退避する
-- 既存の kubeconfig は移行後の確認用として残す
-- 旧 `Flannel` / `kube-proxy` を前提にした手作業はしない
-
-この段階で node 上の旧クラスタを残したまま Calico を重ねないことが重要です。`kube-proxy` と Calico eBPF を同時に中途半端に動かすと、切り分けが難しくなります。
-
-## 3. TalOS 設定を再生成する
-
-`docs/bootstrap.md` の fresh bootstrap 手順に従って、同じ `secrets/mistship/*.sops.*` から復号した `.secret/cluster-inputs.env` と `.secret/cluster-secrets.yaml` で machine config を再生成します。
-
-再生成時の要点:
-
-- `machine.network.kubespan.enabled: true`
-- `machine.network.kubespan.advertiseKubernetesNetworks: false`
-- `cluster.network.cni.name: none`
-- `cluster.proxy.disabled: true`
-
-`worker.yaml` も同じ secrets から生成します。
-
-## 4. control plane を再インストールする
-
-control plane ノードへ `apply-config --insecure` を流し込み、TalOS を再構成します。
+## 再構築
 
 ```bash
 talosctl apply-config --insecure --nodes "$CONTROL_PLANE_IP" --file "$CONTROL_PLANE_CONFIG"
-```
 
-その後、`talosctl bootstrap` を 1 回だけ実行します。
-
-```bash
 talosctl bootstrap \
   --talosconfig "$TALOSCONFIG" \
   --endpoints "$CONTROL_PLANE_IP" \
   --nodes "$CONTROL_PLANE_IP"
 ```
 
-## 5. Calico を入れる
-
-Kubernetes API が上がったら、`kubeconfig` を取得して Calico を staged apply します。
-
-順序は [scripts/apply-calico.sh](../scripts/apply-calico.sh) に固定しています。
-`kubernetes-services-endpoint` は [scripts/apply-calico.sh](../scripts/apply-calico.sh) が `kubeconfig` から解決した API endpoint で生成します。single-node control plane では通常 `https://<CONTROL_PLANE_IP>:6443` を使います。
+その後:
 
 ```bash
-bash ./scripts/apply-calico.sh
-```
-
-## 6. Argo CD を含む bootstrap manifest を適用する
-
-Calico が安定したら、この repo が責務として持つ bootstrap manifest を適用します。
-
-```bash
+GENERATE_KUBECONFIG=true bash ./scripts/prepare-cluster-access.sh
 bash ./scripts/apply-bootstrap-manifests.sh
 ```
 
-この時点で導入するのは Calico と Argo CD までです。deploy repo を指す初回 `Application` は別作業で扱います。
-
-## 7. worker を再追加する
-
-worker を戻す場合は、再生成した `worker.yaml` を使って `apply-config` します。
-
-```bash
-talosctl apply-config --insecure --nodes "$WORKER_IP" --file "$WORKER_CONFIG"
-```
-
-新しい worker は Calico の DaemonSet が入るまで一時的に `NotReady` になることがありますが、Calico が展開されれば `Ready` に収束します。
-
-## 8. 収束確認
-
-移行完了後は次を確認します。
+## 収束確認
 
 ```bash
 kubectl --kubeconfig "$KUBECONFIG" get nodes -o wide
@@ -122,25 +54,11 @@ kubectl --kubeconfig "$KUBECONFIG" get pods -A -o wide
 kubectl --kubeconfig "$KUBECONFIG" -n calico-system get pods -o wide
 ```
 
-確認ポイント:
+見たいもの:
 
 - `kube-flannel` がいない
 - `kube-proxy` がいない
-- Calico の各 component が `Ready`
-- `coredns` が Running
+- Calico が `Ready`
 - node が `Ready`
 
-## 失敗時
-
-Calico が起動しない場合は、まず次を確認します。
-
-- `kubeconfig` の API endpoint が実際の control plane endpoint と一致しているか
-- `cluster.network.cni.name: none` が入っているか
-- `cluster.proxy.disabled: true` が入っているか
-- 旧 `Flannel` / `kube-proxy` の残骸が node に残っていないか
-
-## 参考
-
-- [docs/bootstrap.md](bootstrap.md)
-- [docs/gitops-bootstrap.md](gitops-bootstrap.md)
-- [docs/networking-stack.md](networking-stack.md)
+詳細な背景は [docs/networking-stack.md](networking-stack.md) を参照してください。
