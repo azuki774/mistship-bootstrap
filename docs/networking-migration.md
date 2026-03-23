@@ -21,7 +21,7 @@
 1. control plane を再インストールする
 1. `talosctl bootstrap` を 1 回だけ実行する
 1. Calico を staged apply する
-1. 残りの infra を適用する
+1. Argo CD を含む bootstrap manifest を適用する
 1. worker を再追加する
 
 ## 1. 現在の状態を記録する
@@ -85,20 +85,22 @@ talosctl bootstrap \
 
 Kubernetes API が上がったら、`kubeconfig` を取得して Calico を staged apply します。
 
-順序は [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) に固定しています。
-`kubernetes-services-endpoint` は [`scripts/apply-calico.sh`](/home/azuki/work/mistship/scripts/apply-calico.sh) が `kubeconfig` から解決した API endpoint で生成します。single-node control plane では通常 `https://<CONTROL_PLANE_IP>:6443` を使います。
+順序は [scripts/apply-calico.sh](../scripts/apply-calico.sh) に固定しています。
+`kubernetes-services-endpoint` は [scripts/apply-calico.sh](../scripts/apply-calico.sh) が `kubeconfig` から解決した API endpoint で生成します。single-node control plane では通常 `https://<CONTROL_PLANE_IP>:6443` を使います。
 
 ```bash
-KUBECONFIG="$KUBECONFIG" nix develop .#default --command ./scripts/apply-calico.sh
+bash ./scripts/apply-calico.sh
 ```
 
-## 6. 残りの infra を適用する
+## 6. Argo CD を含む bootstrap manifest を適用する
 
-Calico が安定したら、`manifests/infra/` 配下の公開可能な manifest を適用します。
+Calico が安定したら、この repo が責務として持つ bootstrap manifest を適用します。
 
 ```bash
-kubectl --kubeconfig "$KUBECONFIG" apply --recursive -f manifests/infra
+bash ./scripts/apply-bootstrap-manifests.sh
 ```
+
+この時点で導入するのは Calico と Argo CD までです。deploy repo を指す初回 `Application` は別作業で扱います。
 
 ## 7. worker を再追加する
 
@@ -139,5 +141,6 @@ Calico が起動しない場合は、まず次を確認します。
 
 ## 参考
 
-- [`docs/bootstrap.md`](/home/azuki/work/mistship/docs/bootstrap.md)
-- [`docs/networking-stack.md`](/home/azuki/work/mistship/docs/networking-stack.md)
+- [docs/bootstrap.md](bootstrap.md)
+- [docs/gitops-bootstrap.md](gitops-bootstrap.md)
+- [docs/networking-stack.md](networking-stack.md)

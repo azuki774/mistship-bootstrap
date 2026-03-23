@@ -1,8 +1,8 @@
 # Secret Management with SOPS
 
-`mistship` は public repository として運用するため、平文の cluster input や TalOS / Kubernetes secret bundle は Git に含めません。
+`mistship` は public bootstrap repo なので、平文の cluster input や TalOS / Kubernetes secret bundle は Git に含めません。
 
-その代わりに、SOPS で暗号化したファイルを Git で管理し、ローカル作業や GitHub Actions では一時的に `.secret/` へ復号して使います。
+この repo に置くのは SOPS で暗号化した input だけです。local operator は bootstrap 時だけ `.secret/` に復号して使い、CI は dummy 値で生成経路だけを検証します。
 
 ## 管理対象
 
@@ -13,79 +13,72 @@
 
 Git に置かないもの:
 
+- `.secret/` 配下の復号結果
 - `talosconfig`
 - `kubeconfig`
 - 生成済みの `controlplane.yaml`
 - 生成済みの `worker.yaml`
 - `age` private key
 
-`.secret/` は復号済み作業領域として使い、Git では引き続き [`.secret/.gitkeep`](/home/azuki/work/mistship/.secret/.gitkeep) だけを追跡します。
-
 ## 役割分担
 
 - `cluster-inputs.sops.env`
-  - cluster 名、control plane IP、install disk、TalOS version、schematic ID などの入力値を保持する
+  - cluster 名、control plane IP、install disk、TalOS version、schematic ID などの入力値
 - `cluster-secrets.sops.yaml`
-  - `talosctl gen secrets` の出力を保持する
+  - `talosctl gen secrets` の出力
 - `.secret/cluster-inputs.env`
-  - `cluster-inputs.sops.env` をローカルに復号した一時ファイル
+  - local bootstrap 時だけ作る平文の入力値
 - `.secret/cluster-secrets.yaml`
-  - `cluster-secrets.sops.yaml` をローカルに復号した一時ファイル
+  - local bootstrap 時だけ作る平文の secret bundle
 
-## ローカルでの使い方
+## ローカル bootstrap での使い方
 
-1. age private key を `SOPS_AGE_KEY` に入れる
+1. `SOPS_AGE_KEY` に operator 用の private key を入れる
 2. `nix develop` で dev shell に入る
 3. 復号する
 
 ```bash
 export SOPS_AGE_KEY='AGE-SECRET-KEY-1...'
-nix develop .#default --command bash ./scripts/decrypt-cluster-secrets.sh
+bash ./scripts/decrypt-cluster-secrets.sh
 ```
 
-4. machine config と `talosconfig` を生成する
+4. 変数を読み込む
 
 ```bash
 set -a
 source .secret/cluster-inputs.env
 set +a
-nix develop .#default --command bash ./scripts/prepare-cluster-access.sh
 ```
 
-## GitHub Actions での使い方
+5. TalOS 生成物を作る
 
-- GitHub environment secret `SOPS_AGE_KEY` に CI 用 `age` private key を入れる
-- secret を復号する workflow は `Development` environment などの trusted context に限定する
-- [`cluster-access`](/home/azuki/work/mistship/.github/actions/cluster-access/action.yml) は `SOPS_AGE_KEY` をそのまま使って [`scripts/decrypt-cluster-secrets.sh`](/home/azuki/work/mistship/scripts/decrypt-cluster-secrets.sh) を呼び、`.secret/cluster-inputs.env` と `.secret/cluster-secrets.yaml` を生成する
-- 復号後は既存の [`scripts/prepare-cluster-access.sh`](/home/azuki/work/mistship/scripts/prepare-cluster-access.sh) で `talosconfig` と machine config を再生成する
+```bash
+bash ./scripts/prepare-cluster-access.sh
+```
 
-この repo では次の境界で運用します。
+## CI での扱い
 
-- `talos-update.yml`
-  - trusted context でのみ実行する
-  - 実 secret を復号して cluster へ apply する
-- `talos-preflight.yml`
-  - PR でも実行する
-  - 実 secret は復号しない
-  - dummy secrets で `prepare-cluster-access.sh` の生成経路だけ検証する
+この repo の CI は実 secret を復号しません。
+
+- `nix-ci`
+  - shell script と docs の整合を確認する
+- `talos-preflight`
+  - dummy 値と `talosctl gen secrets` で `prepare-cluster-access.sh` の生成経路を確認する
+
+つまり、GitHub Actions に live cluster 用の `SOPS_AGE_KEY` を渡す設計ではありません。
 
 ## 鍵管理
 
-- 人間の operator は各自の `age` key pair を持つ
-- CI 用には専用の `age` key pair を 1 つ用意する
-- public key だけを `.sops.yaml` に登録する
+- operator は各自の `age` key pair を持つ
+- `.sops.yaml` には public key だけを入れる
 - private key は repo に置かない
 
-recipient の追加・削除を行うときは、`.sops.yaml` を更新した上で `sops updatekeys` を使います。
+recipient を追加・削除するときは `.sops.yaml` を更新し、`sops updatekeys` を使います。
 
 ## 初回セットアップ
 
-この repo には recipient の実値と暗号化済み実データは含めていません。
-
-最初の投入時は次を行います。
-
-1. `.sops.yaml` に operator と CI の public key を記入する
-2. [`templates/cluster-inputs.env.example`](/home/azuki/work/mistship/templates/cluster-inputs.env.example) を元に平文の cluster input を作る
-3. `talosctl gen secrets` で平文の `cluster-secrets.yaml` を作る
+1. `.sops.yaml` に operator の public key を記入する
+2. [templates/cluster-inputs.env.example](../templates/cluster-inputs.env.example) を元に平文の `cluster-inputs.env` を作る
+3. `talosctl gen secrets -o cluster-secrets.yaml` で平文 secret bundle を作る
 4. `sops --encrypt` で `secrets/mistship/cluster-inputs.sops.env` と `secrets/mistship/cluster-secrets.sops.yaml` を作る
-5. 平文ファイルは削除し、`.secret/` は作業終了後に消す
+5. 平文ファイルは削除し、作業後の `.secret/` も消す
