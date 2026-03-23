@@ -6,12 +6,12 @@
 
 ## 何を置くか
 
-- `image.yml`
-- `patches/`
-- `manifests/bootstrap/`
-- `secrets/mistship/*.sops.*`
-- `docs/`
-- bootstrap 用 script
+- TalOS イメージ定義
+- 公開可能な patch
+- bootstrap 用 manifest
+- SOPS で暗号化した cluster input
+- bootstrap 手順書
+- ローカル bootstrap 用 script
 
 ## 何を置かないか
 
@@ -63,10 +63,10 @@ bash ./scripts/prepare-cluster-access.sh
 
 ## CI
 
-GitHub Actions は検証専用です。
+GitHub Actions は検証専用で、cluster への deploy や apply はしません。実 secret の復号もしません。
 
-- `nix-ci`: shell script と docs link の確認
-- `talos-preflight`: manifest と dummy input による TalOS 生成経路の確認
+- `nix-ci`: ツールの起動確認、shell script の構文確認、docs link の確認
+- `talos-preflight`: manifest 検証、patch 検証、dummy input による TalOS 生成経路の確認
 
 ## Docs
 
