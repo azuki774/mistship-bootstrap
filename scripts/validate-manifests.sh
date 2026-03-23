@@ -17,6 +17,7 @@ for file in "${yaml_files[@]}"; do
 done
 
 calico_dir="manifests/infra/calico"
+argocd_dir="manifests/infra/argocd"
 common_patch="patches/common.yaml"
 
 yq eval -e '.cluster.network.cni.name == "none"' "$common_patch" >/dev/null
@@ -55,5 +56,14 @@ yq eval -e '.apiVersion == "crd.projectcalico.org/v1"' "$calico_dir/32-felixconf
 yq eval -e '.kind == "FelixConfiguration"' "$calico_dir/32-felixconfiguration.yaml" >/dev/null
 yq eval -e '.metadata.name == "default"' "$calico_dir/32-felixconfiguration.yaml" >/dev/null
 yq eval -e '.spec.cgroupV2Path == "/sys/fs/cgroup"' "$calico_dir/32-felixconfiguration.yaml" >/dev/null
+
+if [[ -d "$argocd_dir" ]]; then
+  kubeconform -strict -summary "$argocd_dir/00-namespace.yaml"
+  yq eval -e '.apiVersion == "kustomize.config.k8s.io/v1beta1"' "$argocd_dir/kustomization.yaml" >/dev/null
+  yq eval -e '.kind == "Kustomization"' "$argocd_dir/kustomization.yaml" >/dev/null
+  yq eval -e '.namespace == "argocd"' "$argocd_dir/kustomization.yaml" >/dev/null
+  yq eval -e '.resources[0] == "00-namespace.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
+  yq eval -e '.resources[1] == "https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.4/manifests/install.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
+fi
 
 echo "Manifest validation passed."
