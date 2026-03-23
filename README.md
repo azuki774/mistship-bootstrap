@@ -79,4 +79,5 @@ GitHub Actions は検証専用で、cluster への deploy や apply はしませ
 - [docs/secrets.md](docs/secrets.md)
 - [docs/networking-stack.md](docs/networking-stack.md)
 - [docs/networking-migration.md](docs/networking-migration.md)
+- [docs/conventional-commit-writer.md](docs/conventional-commit-writer.md)
 - [manifests/bootstrap/README.md](manifests/bootstrap/README.md)
