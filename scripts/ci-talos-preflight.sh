@@ -47,6 +47,12 @@ export CLUSTER_NAME="mistship-ci-dummy"
 export CONTROL_PLANE_IP="192.0.2.11"
 export INSTALL_DISK="$(yq eval -r '.machine.install.disk' patches/common.yaml)"
 export INSTALL_IMAGE="$(yq eval -r '.machine.install.image' patches/common.yaml)"
+export TAILSCALE_CONTROLPLANE_ENABLED="true"
+export TAILSCALE_CONTROLPLANE_AUTHKEY="tskey-ci-dummy"
+export TAILSCALE_CONTROLPLANE_HOSTNAME="mistship-ci-controlplane"
+export TAILSCALE_CONTROLPLANE_TAGS="tag:mistship-controlplane"
+export TAILSCALE_CONTROLPLANE_AUTH_ONCE="true"
+export TAILSCALE_CONTROLPLANE_ACCEPT_DNS="false"
 
 mkdir -p "$GENERATED_CONFIG_DIR" "$tmpdir/nodes"
 
@@ -56,6 +62,8 @@ bash ./scripts/prepare-cluster-access.sh
 test -s "$CONTROL_PLANE_CONFIG"
 test -s "$WORKER_CONFIG"
 test -s "$TALOSCONFIG"
+grep -q 'kind: ExtensionServiceConfig' "$CONTROL_PLANE_CONFIG"
+grep -q 'name: tailscale' "$CONTROL_PLANE_CONFIG"
 
 echo "Patch validation passed."
 echo "::endgroup::"

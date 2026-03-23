@@ -25,6 +25,9 @@ bash ./scripts/prepare-cluster-access.sh
 - `.secret/nodes/controlplane.yaml`
 - `.secret/nodes/worker.yaml`
 
+control plane を Tailscale に参加させる場合は、`cluster-inputs.env` に `TAILSCALE_CONTROLPLANE_*` を入れたうえで同じ script を使います。
+詳細は [docs/tailscale.md](tailscale.md) を参照してください。
+
 ## 3. control plane に適用する
 
 ```bash
