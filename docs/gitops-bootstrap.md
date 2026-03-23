@@ -28,7 +28,7 @@ bash ./scripts/apply-bootstrap-manifests.sh
 このスクリプトが行うこと:
 
 1. [scripts/apply-calico.sh](../scripts/apply-calico.sh) で Calico を staged apply する
-2. [manifests/infra/argocd/kustomization.yaml](../manifests/infra/argocd/kustomization.yaml) を `kubectl apply -k` で適用する
+2. [manifests/bootstrap/argocd/kustomization.yaml](../manifests/bootstrap/argocd/kustomization.yaml) を `kubectl apply -k` で適用する
 3. optional manifest は既定では apply しない
 
 ## 2. 収束を確認する
@@ -63,4 +63,4 @@ Argo CD が起動したら、継続反映は deploy repo に渡します。
 - repo credential / SSH deploy key / PAT
 - Argo CD self-management
 
-Argo CD install manifest の version pin は [manifests/infra/argocd/kustomization.yaml](../manifests/infra/argocd/kustomization.yaml) で管理します。
+Argo CD install manifest の version pin は [manifests/bootstrap/argocd/kustomization.yaml](../manifests/bootstrap/argocd/kustomization.yaml) で管理します。

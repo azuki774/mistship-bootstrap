@@ -5,11 +5,15 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-mapfile -t markdown_files < <(git ls-files '*.md' | sort)
+mapfile -t markdown_files < <(git ls-files --cached --modified '*.md' | sort -u)
 
 status=0
 
 for file in "${markdown_files[@]}"; do
+  if [[ ! -f "$file" ]]; then
+    continue
+  fi
+
   if grep -q '/home/azuki/work/mistship/' "$file"; then
     echo "Found absolute workspace path in $file" >&2
     status=1

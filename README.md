@@ -98,7 +98,7 @@ nix develop
 commit してよいもの:
 
 - `image.yml`、`patches/*.yaml`
-- `manifests/infra/` 配下の公開可能な bootstrap manifest
+- `manifests/bootstrap/` 配下の公開可能な bootstrap manifest
 - `secrets/mistship/*.sops.env`
 - `secrets/mistship/*.sops.yaml`
 - 手順書、テンプレート、検証スクリプト
@@ -126,6 +126,6 @@ commit しないもの:
 - [docs/secrets.md](docs/secrets.md): SOPS で暗号化した cluster input の扱い
 - [docs/networking-stack.md](docs/networking-stack.md): 採用するネットワーク構成の判断
 - [docs/networking-migration.md](docs/networking-migration.md): 既存 single-node クラスタを再 bootstrap で切り替える手順
-- [manifests/infra/README.md](manifests/infra/README.md): bootstrap manifest の責務と適用順
+- [manifests/bootstrap/README.md](manifests/bootstrap/README.md): bootstrap manifest の責務と適用順
 
 TalOS の system extension を使う場合は、起動用イメージだけでなく installer image も同じ schematic に合わせます。詳細は [image.yml](image.yml) と [docs/bootstrap.md](docs/bootstrap.md) を参照してください。

@@ -165,6 +165,6 @@ kubectl --kubeconfig "$KUBECONFIG" get pods -A
 TalOS control plane と `kubeconfig` がそろったら、この repo の次の責務は Calico と Argo CD の導入です。
 
 - [docs/gitops-bootstrap.md](gitops-bootstrap.md)
-- [manifests/infra/README.md](../manifests/infra/README.md)
+- [manifests/bootstrap/README.md](../manifests/bootstrap/README.md)
 
 worker を追加する場合は、同じ `.secret/cluster-secrets.yaml` から生成した `worker.yaml` を `apply-config --insecure` で適用します。worker の再参加後も継続反映は Argo CD 側へ渡します。

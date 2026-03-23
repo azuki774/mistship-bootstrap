@@ -17,9 +17,9 @@ echo "::group::Apply Calico"
 echo "::endgroup::"
 
 echo "::group::Apply Argo CD bootstrap manifest"
-kubectl --kubeconfig "$KUBECONFIG" apply -k manifests/infra/argocd
+kubectl --kubeconfig "$KUBECONFIG" apply -k manifests/bootstrap/argocd
 echo "::endgroup::"
 
-if [[ -d manifests/infra/ebpf-demo ]]; then
-  echo "Skipping optional example manifests under manifests/infra/ebpf-demo."
+if [[ -d manifests/bootstrap/ebpf-demo ]]; then
+  echo "Skipping optional example manifests under manifests/bootstrap/ebpf-demo."
 fi

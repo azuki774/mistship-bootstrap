@@ -1,6 +1,6 @@
 # Infrastructure Manifests
 
-`manifests/infra/` には、GitOps が動き出す前に local operator が適用する公開可能な Kubernetes manifest を置きます。
+`manifests/bootstrap/` には、GitOps が動き出す前に local operator が適用する公開可能な Kubernetes manifest を置きます。
 
 この repo の既定 bootstrap で使うディレクトリ:
 

@@ -16,8 +16,8 @@ for file in "${yaml_files[@]}"; do
   yq eval '.' "$file" >/dev/null
 done
 
-calico_dir="manifests/infra/calico"
-argocd_dir="manifests/infra/argocd"
+calico_dir="manifests/bootstrap/calico"
+argocd_dir="manifests/bootstrap/argocd"
 common_patch="patches/common.yaml"
 
 yq eval -e '.cluster.network.cni.name == "none"' "$common_patch" >/dev/null
