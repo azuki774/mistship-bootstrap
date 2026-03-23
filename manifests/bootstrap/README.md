@@ -19,4 +19,5 @@ bash ./scripts/apply-bootstrap-manifests.sh
 
 このスクリプトは `calico/` を先に適用し、その後 `argocd/` を server-side apply で適用します。
 Argo CD の CRD は大きいため、client-side apply だと annotation size 制限に当たる場合があります。
+また、過去の client-side apply が残している field manager conflict を bootstrap 側で解消するため、`--force-conflicts` を使います。
 `ebpf-demo/` は既定では apply しません。

@@ -64,7 +64,7 @@ if [[ -d "$argocd_dir" ]]; then
   yq eval -e '.namespace == "argocd"' "$argocd_dir/kustomization.yaml" >/dev/null
   yq eval -e '.resources[0] == "00-namespace.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
   yq eval -e '.resources[1] == "https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.4/manifests/install.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
-  grep -F 'kubectl --kubeconfig "$KUBECONFIG" apply --server-side -k manifests/bootstrap/argocd' \
+  grep -F 'kubectl --kubeconfig "$KUBECONFIG" apply --server-side --force-conflicts -k manifests/bootstrap/argocd' \
     scripts/apply-bootstrap-manifests.sh >/dev/null
 fi
 

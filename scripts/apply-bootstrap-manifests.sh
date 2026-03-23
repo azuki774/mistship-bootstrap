@@ -18,8 +18,9 @@ echo "::endgroup::"
 
 echo "::group::Apply Argo CD bootstrap manifest"
 # Argo CD bundles large CRDs, so use server-side apply to avoid
-# exceeding the last-applied-configuration annotation limit.
-kubectl --kubeconfig "$KUBECONFIG" apply --server-side -k manifests/bootstrap/argocd
+# exceeding the last-applied-configuration annotation limit. Force conflicts
+# so bootstrap can take ownership from previous client-side apply runs.
+kubectl --kubeconfig "$KUBECONFIG" apply --server-side --force-conflicts -k manifests/bootstrap/argocd
 echo "::endgroup::"
 
 if [[ -d manifests/bootstrap/ebpf-demo ]]; then
