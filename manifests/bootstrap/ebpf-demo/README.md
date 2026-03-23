@@ -1,6 +1,6 @@
 # Calico eBPF Service デモ
 
-この手順は、`mistship` の `Calico eBPF` dataplane を使って `Service` 転送が動いていることを確認するためのものです。
+この手順は、`mistship-bootstrap` が bootstrap 対象にしているクラスタで `Calico eBPF` dataplane を使って `Service` 転送が動いていることを確認するためのものです。
 
 目的:
 

@@ -1,6 +1,6 @@
 # TalOS Bootstrap
 
-TalOS の control plane を立ち上げるまでの最短手順です。前提は、node が maintenance mode で起動しており、SOPS 暗号化済み input が `secrets/mistship/` にあることです。
+`mistship-bootstrap` で TalOS の control plane を立ち上げるまでの最短手順です。前提は、node が maintenance mode で起動しており、SOPS 暗号化済み input が現行 path の `secrets/mistship/` にあることです。
 
 ## 1. 入力を復号する
 

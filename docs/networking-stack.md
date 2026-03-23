@@ -1,6 +1,6 @@
 # TalOS クラスタのネットワーク構成方針
 
-この文書は、`mistship` で採用する Kubernetes ネットワーク構成を記録するための設計メモです。
+この文書は、`mistship-bootstrap` で bootstrap 対象にしている Kubernetes ネットワーク構成を記録するための設計メモです。
 
 対象は TalOS v1.12 系を前提にした single-cluster 構成です。
 

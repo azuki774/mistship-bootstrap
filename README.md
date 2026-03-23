@@ -1,8 +1,10 @@
-# mistship
+# mistship-bootstrap
 
-`mistship` は、TalOS クラスタを手元で bootstrap し、Argo CD を入れて GitOps に渡すまでを管理する public repo です。
+`mistship-bootstrap` は、TalOS クラスタを手元で bootstrap し、Argo CD を入れて GitOps に渡すまでを管理する public repo です。
 
 この repo に置くのは、公開可能な定義、SOPS で暗号化した cluster input、ローカル bootstrap 手順です。継続運用用の manifest や CI/CD からの cluster apply は扱いません。
+
+`mistship-bootstrap` という名前どおり、この repo の責務は bootstrap までです。Argo CD 導入後の継続運用は別の deploy repo に渡します。
 
 ## 何を置くか
 
@@ -51,6 +53,8 @@ bash ./scripts/prepare-cluster-access.sh
 ├── image.yml
 └── flake.nix
 ```
+
+現時点では、暗号化済み cluster input の格納 path は `secrets/mistship/` のままです。repo 名の rename と path / env var の rename は分けて扱います。
 
 ## 秘密情報
 
