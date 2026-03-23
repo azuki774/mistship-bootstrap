@@ -1,6 +1,8 @@
 # Secret Management with SOPS
 
-この repo に置く secret 関連ファイルは、SOPS で暗号化した input だけです。平文 secret は `.secret/` にだけ置きます。
+`mistship-bootstrap` に置く secret 関連ファイルは、SOPS で暗号化した input だけです。平文 secret は `.secret/` にだけ置きます。
+
+repo 名は `mistship-bootstrap` ですが、現時点の暗号化済み input の格納 path は `secrets/mistship/` のままです。
 
 ## Git に置くもの
 
