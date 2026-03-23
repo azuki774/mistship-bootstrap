@@ -3,7 +3,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-calico_dir="$repo_root/manifests/infra/calico"
+calico_dir="$repo_root/manifests/bootstrap/calico"
 kubernetes_service_host=""
 kubernetes_service_port=""
 

@@ -1,5 +1,5 @@
 {
-  description = "Development shell for operating Talos clusters";
+  description = "Development shell for bootstrapping Talos clusters locally";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
