@@ -74,6 +74,8 @@ GENERATE_KUBECONFIG=true bash ./scripts/prepare-cluster-access.sh
 kubectl --kubeconfig "$KUBECONFIG" get nodes -o wide
 ```
 
+TalOS ingress firewall patch はこの repo では管理せず、local で復号した `.secret/talosconfig` を使って private repo 側から別途適用します。
+
 ここまで終わったら次へ進みます。
 
 - [docs/gitops-bootstrap.md](gitops-bootstrap.md)

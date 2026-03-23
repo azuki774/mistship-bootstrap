@@ -21,6 +21,7 @@
 - `talosconfig`、`kubeconfig`
 - 生成済み machine config
 - Argo CD 導入後の継続運用 manifest
+- 実環境固有の TalOS ingress firewall patch
 - deploy repo を指す `Application`
 
 ## 最短フロー
