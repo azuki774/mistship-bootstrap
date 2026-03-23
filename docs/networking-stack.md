@@ -98,7 +98,7 @@ TalOS 側では、`cluster.network.cni.name` を `none` にする前提で構成
 ## 運用メモ
 
 - `KubeSpan` 用に UDP `51820` を通す
-- TalOS ingress firewall を `block` で使う場合は、`KubeSpan` と Kubernetes API に必要な通信を明示的に許可する
+- TalOS ingress firewall patch 自体はこの repo では管理せず、private repo 側で別管理する
 - `Calico eBPF` は `kube-proxy` なし前提なので、bootstrap 手順と manifest 適用順を固定する
 
 ## リスク
