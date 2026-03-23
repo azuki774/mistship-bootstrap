@@ -17,4 +17,6 @@
 bash ./scripts/apply-bootstrap-manifests.sh
 ```
 
-このスクリプトは `calico/` を先に適用し、その後 `argocd/` を適用します。`ebpf-demo/` は既定では apply しません。
+このスクリプトは `calico/` を先に適用し、その後 `argocd/` を server-side apply で適用します。
+Argo CD の CRD は大きいため、client-side apply だと annotation size 制限に当たる場合があります。
+`ebpf-demo/` は既定では apply しません。

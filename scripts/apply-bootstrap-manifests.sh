@@ -17,7 +17,9 @@ echo "::group::Apply Calico"
 echo "::endgroup::"
 
 echo "::group::Apply Argo CD bootstrap manifest"
-kubectl --kubeconfig "$KUBECONFIG" apply -k manifests/bootstrap/argocd
+# Argo CD bundles large CRDs, so use server-side apply to avoid
+# exceeding the last-applied-configuration annotation limit.
+kubectl --kubeconfig "$KUBECONFIG" apply --server-side -k manifests/bootstrap/argocd
 echo "::endgroup::"
 
 if [[ -d manifests/bootstrap/ebpf-demo ]]; then

@@ -16,7 +16,10 @@ bash ./scripts/apply-bootstrap-manifests.sh
 このスクリプトは次を行います。
 
 1. `scripts/apply-calico.sh` で Calico を staged apply
-2. `manifests/bootstrap/argocd/` を `kubectl apply -k` で適用
+2. `manifests/bootstrap/argocd/` を `kubectl apply --server-side -k` で適用
+
+Argo CD の upstream manifest にはサイズの大きい CRD が含まれるため、client-side apply だと
+`metadata.annotations: Too long` で失敗し得ます。この repo では bootstrap 時に server-side apply を使います。
 
 ## 確認
 
