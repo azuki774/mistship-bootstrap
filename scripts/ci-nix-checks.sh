@@ -10,5 +10,8 @@ command -v talosctl talhelper kubectl kubeconform jq yq sops age
 talosctl version --client
 talhelper --help >/dev/null
 bash -n ./scripts/decrypt-cluster-secrets.sh
+bash -n ./scripts/apply-bootstrap-manifests.sh
+bash -n ./scripts/check-doc-links.sh
 bash -n ./scripts/prepare-cluster-access.sh
+bash ./scripts/check-doc-links.sh
 echo "::endgroup::"
