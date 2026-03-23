@@ -6,7 +6,12 @@ on:
       - "flake.nix"
       - "**/*.nix"
       - "flake.lock"
+      - "README.md"
+      - "docs/**"
+      - "manifests/**/*.md"
+      - "scripts/check-doc-links.sh"
       - "scripts/ci-nix-checks.sh"
+      - "scripts/apply-bootstrap-manifests.sh"
       - ".github/workflows/nix-ci.yml"
   push:
     branches:
@@ -15,7 +20,12 @@ on:
       - "flake.nix"
       - "**/*.nix"
       - "flake.lock"
+      - "README.md"
+      - "docs/**"
+      - "manifests/**/*.md"
+      - "scripts/check-doc-links.sh"
       - "scripts/ci-nix-checks.sh"
+      - "scripts/apply-bootstrap-manifests.sh"
       - ".github/workflows/nix-ci.yml"
 
 jobs:

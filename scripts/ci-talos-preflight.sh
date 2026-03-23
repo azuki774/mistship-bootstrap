@@ -9,6 +9,17 @@ echo "::group::Validate manifests"
 bash ./scripts/validate-manifests.sh
 echo "::endgroup::"
 
+echo "::group::Validate docs"
+bash ./scripts/check-doc-links.sh
+echo "::endgroup::"
+
+echo "::group::Validate shell scripts"
+bash -n ./scripts/apply-bootstrap-manifests.sh
+bash -n ./scripts/check-doc-links.sh
+bash -n ./scripts/decrypt-cluster-secrets.sh
+bash -n ./scripts/prepare-cluster-access.sh
+echo "::endgroup::"
+
 echo "::group::Validate Talos patches"
 patch_files=(
   "patches/common.yaml"

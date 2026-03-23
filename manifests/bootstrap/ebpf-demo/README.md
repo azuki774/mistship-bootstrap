@@ -8,8 +8,8 @@
 - Calico の eBPF NAT map に Service と backend Pod の対応が載っていることを確認する
 - Calico の eBPF conntrack map に直前の通信が載っていることを確認する
 
-このデモで使う manifest は [`00-ebpf-demo.yaml`](/home/azuki/work/mistship/manifests/infra/ebpf-demo/00-ebpf-demo.yaml) です。
-通常運用では `manifests/infra/` 配下の他の基盤 manifest と同様に apply されます。
+このデモで使う manifest は [00-ebpf-demo.yaml](00-ebpf-demo.yaml) です。
+このディレクトリは手動検証用であり、bootstrap 既定では apply しません。
 
 ## 1. デモ workload を確認する
 

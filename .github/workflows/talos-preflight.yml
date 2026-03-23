@@ -7,8 +7,12 @@ on:
       - "**/*.nix"
       - "flake.lock"
       - "patches/**"
+      - ".sops.yaml"
+      - "secrets/**"
       - "manifests/**"
+      - "scripts/apply-bootstrap-manifests.sh"
       - "scripts/ci-talos-preflight.sh"
+      - "scripts/decrypt-cluster-secrets.sh"
       - "scripts/prepare-cluster-access.sh"
       - "scripts/validate-manifests.sh"
       - ".github/workflows/talos-preflight.yml"
@@ -20,8 +24,12 @@ on:
       - "**/*.nix"
       - "flake.lock"
       - "patches/**"
+      - ".sops.yaml"
+      - "secrets/**"
       - "manifests/**"
+      - "scripts/apply-bootstrap-manifests.sh"
       - "scripts/ci-talos-preflight.sh"
+      - "scripts/decrypt-cluster-secrets.sh"
       - "scripts/prepare-cluster-access.sh"
       - "scripts/validate-manifests.sh"
       - ".github/workflows/talos-preflight.yml"
@@ -31,7 +39,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
 
     steps:
       - name: Checkout
@@ -44,4 +51,5 @@ jobs:
         uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Run Talos preflight checks in dev shell
+        # PR-safe validation only. This job never decrypts real cluster secrets.
         run: nix develop .#default --command bash ./scripts/ci-talos-preflight.sh

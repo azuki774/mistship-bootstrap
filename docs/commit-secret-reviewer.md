@@ -40,7 +40,7 @@
 
 - `talosconfig`
 - `kubeconfig`
-- `cluster-secrets.yaml`
+- 平文の `cluster-secrets.yaml`
 - `.secret/`
 - `*.pem`
 - `*.key`
@@ -50,6 +50,8 @@
 - `id_rsa`
 - `id_ed25519`
 - 鍵、証明書、token dump、secret bundle を想起させるファイル名
+
+ただし、`secrets/**/*.sops.yaml` と `secrets/**/*.sops.env` は暗号化済み blob として扱い、private key や平文 secret が含まれていなければ `FILE_SECRET` では fail しません。
 
 ### `KEY_MATERIAL`
 

@@ -1,0 +1,4 @@
+# Fill in the age recipients before encrypting the first cluster files.
+# This repo keeps the config file tracked, but the actual public keys are
+# environment-specific and must be added by operators.
+creation_rules: []
