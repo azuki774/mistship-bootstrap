@@ -22,7 +22,7 @@
 - 生成済み machine config
 - Argo CD 導入後の継続運用 manifest
 - 実環境固有の TalOS ingress firewall patch
-- deploy repo を指す `Application`
+- private deploy repo 側で継続運用する `AppProject` や child `Application`
 
 ## 最短フロー
 
@@ -38,6 +38,7 @@ bash ./scripts/ops/prepare-cluster-access.sh
 1. [docs/bootstrap.md](docs/bootstrap.md) で TalOS control plane を bootstrap
 2. `GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh` で `kubeconfig` を取得
 3. [docs/gitops-bootstrap.md](docs/gitops-bootstrap.md) で Calico と Argo CD を導入
+4. private deploy repo 名と SSH deploy key を用意したら、同じ手順で `bootstrap-root` `Application` まで投入する
 
 ## ディレクトリ
 

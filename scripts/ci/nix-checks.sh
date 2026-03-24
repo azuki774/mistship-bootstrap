@@ -13,5 +13,6 @@ bash -n ./scripts/ops/decrypt-cluster-secrets.sh
 bash -n ./scripts/ops/apply-bootstrap-manifests.sh
 bash -n ./scripts/check-doc-links.sh
 bash -n ./scripts/ops/prepare-cluster-access.sh
+bash -n ./scripts/render-gitops-entry.sh
 bash ./scripts/check-doc-links.sh
 echo "::endgroup::"
