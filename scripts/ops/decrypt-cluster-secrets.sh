@@ -11,8 +11,10 @@ cd "$repo_root"
 secrets_dir="${MISTSHIP_SECRETS_DIR:-$repo_root/.secret}"
 cluster_inputs_sops_file="${MISTSHIP_CLUSTER_INPUTS_SOPS_FILE:-secrets/mistship/cluster-inputs.sops.env}"
 cluster_secrets_sops_file="${MISTSHIP_CLUSTER_SECRETS_SOPS_FILE:-secrets/mistship/cluster-secrets.sops.yaml}"
+argocd_repository_sops_file="secrets/mistship/argocd-repository.sops.yaml"
 cluster_env_file="$secrets_dir/cluster-inputs.env"
 cluster_secrets_file="${CLUSTER_SECRETS:-$secrets_dir/cluster-secrets.yaml}"
+argocd_repository_file="$secrets_dir/argocd-repository.yaml"
 
 mkdir -p "$secrets_dir/generated" "$secrets_dir/nodes"
 
@@ -36,3 +38,12 @@ sops --decrypt --output "$cluster_env_file" "$cluster_inputs_sops_file"
 sops --decrypt --output "$cluster_secrets_file" "$cluster_secrets_sops_file"
 chmod 600 "$cluster_env_file" "$cluster_secrets_file"
 echo "::endgroup::"
+
+if [[ -f "$argocd_repository_sops_file" ]]; then
+  echo "::group::Decrypt optional Argo CD repository key"
+  sops --decrypt --output "$argocd_repository_file" "$argocd_repository_sops_file"
+  chmod 600 "$argocd_repository_file"
+  echo "::endgroup::"
+else
+  echo "Skipping optional Argo CD repository key decryption: $argocd_repository_sops_file not found."
+fi
