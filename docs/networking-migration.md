@@ -11,7 +11,7 @@
 3. [docs/bootstrap.md](bootstrap.md) に従って TalOS 設定を再生成する
 4. control plane に `apply-config --insecure` を流す
 5. `talosctl bootstrap` を 1 回だけ実行する
-6. `bash ./scripts/apply-bootstrap-manifests.sh` で Calico と Argo CD を入れる
+6. `bash ./scripts/ops/apply-bootstrap-manifests.sh` で Calico と Argo CD を入れる
 7. 必要なら worker を再追加する
 
 ## 記録しておくもの
@@ -42,8 +42,8 @@ talosctl bootstrap \
 その後:
 
 ```bash
-GENERATE_KUBECONFIG=true bash ./scripts/prepare-cluster-access.sh
-bash ./scripts/apply-bootstrap-manifests.sh
+GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh
+bash ./scripts/ops/apply-bootstrap-manifests.sh
 ```
 
 ## 収束確認

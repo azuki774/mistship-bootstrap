@@ -14,7 +14,7 @@
 ## 適用順
 
 ```bash
-bash ./scripts/apply-bootstrap-manifests.sh
+bash ./scripts/ops/apply-bootstrap-manifests.sh
 ```
 
 このスクリプトは `calico/` を先に適用し、その後 `argocd/` を server-side apply で適用します。

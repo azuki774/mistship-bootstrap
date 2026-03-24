@@ -10,12 +10,12 @@ TalOS bootstrap 後に、Calico と Argo CD を入れるための最短手順で
 ## 適用
 
 ```bash
-bash ./scripts/apply-bootstrap-manifests.sh
+bash ./scripts/ops/apply-bootstrap-manifests.sh
 ```
 
 このスクリプトは次を行います。
 
-1. `scripts/apply-calico.sh` で Calico を staged apply
+1. `scripts/ops/apply-calico.sh` で Calico を staged apply
 2. `manifests/bootstrap/argocd/` を `kubectl apply --server-side -k` で適用
 
 Argo CD の upstream manifest にはサイズの大きい CRD が含まれるため、client-side apply だと

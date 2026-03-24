@@ -10,11 +10,11 @@ on:
       - ".sops.yaml"
       - "secrets/**"
       - "manifests/**"
-      - "scripts/apply-bootstrap-manifests.sh"
-      - "scripts/ci-talos-preflight.sh"
-      - "scripts/decrypt-cluster-secrets.sh"
-      - "scripts/prepare-cluster-access.sh"
-      - "scripts/validate-manifests.sh"
+      - "scripts/ops/apply-bootstrap-manifests.sh"
+      - "scripts/ci/talos-preflight.sh"
+      - "scripts/ops/decrypt-cluster-secrets.sh"
+      - "scripts/ops/prepare-cluster-access.sh"
+      - "scripts/ops/validate-manifests.sh"
       - ".github/workflows/talos-preflight.yml"
   push:
     branches:
@@ -27,11 +27,11 @@ on:
       - ".sops.yaml"
       - "secrets/**"
       - "manifests/**"
-      - "scripts/apply-bootstrap-manifests.sh"
-      - "scripts/ci-talos-preflight.sh"
-      - "scripts/decrypt-cluster-secrets.sh"
-      - "scripts/prepare-cluster-access.sh"
-      - "scripts/validate-manifests.sh"
+      - "scripts/ops/apply-bootstrap-manifests.sh"
+      - "scripts/ci/talos-preflight.sh"
+      - "scripts/ops/decrypt-cluster-secrets.sh"
+      - "scripts/ops/prepare-cluster-access.sh"
+      - "scripts/ops/validate-manifests.sh"
       - ".github/workflows/talos-preflight.yml"
 
 jobs:
@@ -52,4 +52,4 @@ jobs:
 
       - name: Run Talos preflight checks in dev shell
         # PR-safe validation only. This job never decrypts real cluster secrets.
-        run: nix develop .#default --command bash ./scripts/ci-talos-preflight.sh
+        run: nix develop .#default --command bash ./scripts/ci/talos-preflight.sh

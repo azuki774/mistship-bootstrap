@@ -10,8 +10,8 @@ on:
       - "docs/**"
       - "manifests/**/*.md"
       - "scripts/check-doc-links.sh"
-      - "scripts/ci-nix-checks.sh"
-      - "scripts/apply-bootstrap-manifests.sh"
+      - "scripts/ci/nix-checks.sh"
+      - "scripts/ops/apply-bootstrap-manifests.sh"
       - ".github/workflows/nix-ci.yml"
   push:
     branches:
@@ -24,8 +24,8 @@ on:
       - "docs/**"
       - "manifests/**/*.md"
       - "scripts/check-doc-links.sh"
-      - "scripts/ci-nix-checks.sh"
-      - "scripts/apply-bootstrap-manifests.sh"
+      - "scripts/ci/nix-checks.sh"
+      - "scripts/ops/apply-bootstrap-manifests.sh"
       - ".github/workflows/nix-ci.yml"
 
 jobs:
@@ -46,4 +46,4 @@ jobs:
         uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Run CI checks in dev shell
-        run: nix develop .#default --command bash ./scripts/ci-nix-checks.sh
+        run: nix develop .#default --command bash ./scripts/ci/nix-checks.sh

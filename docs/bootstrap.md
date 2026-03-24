@@ -7,7 +7,7 @@
 ```bash
 nix develop
 export SOPS_AGE_KEY='AGE-SECRET-KEY-1...'
-bash ./scripts/decrypt-cluster-secrets.sh
+bash ./scripts/ops/decrypt-cluster-secrets.sh
 set -a
 source .secret/cluster-inputs.env
 set +a
@@ -16,7 +16,7 @@ set +a
 ## 2. TalOS 用ファイルを作る
 
 ```bash
-bash ./scripts/prepare-cluster-access.sh
+bash ./scripts/ops/prepare-cluster-access.sh
 ```
 
 これで主に次が生成されます。
@@ -70,7 +70,7 @@ talosctl get staticpods \
 ## 5. kubeconfig を取る
 
 ```bash
-GENERATE_KUBECONFIG=true bash ./scripts/prepare-cluster-access.sh
+GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh
 kubectl --kubeconfig "$KUBECONFIG" get nodes -o wide
 ```
 
