@@ -1,7 +1,7 @@
 # This repo keeps the config file tracked, but the actual public keys are
 # environment-specific and must be added by operators.
 creation_rules:
-  - path_regex: ^templates/cluster-inputs\.env$
+  - path_regex: ^\.secret/cluster-inputs\.env$
     age: age1rh2rwky86rqdg7vx0k7pu3nr5nynde3j6y9lntcql3y99ur323ssvtwhd7
   - path_regex: ^\.secret/cluster-secrets\.yaml$
     age: age1rh2rwky86rqdg7vx0k7pu3nr5nynde3j6y9lntcql3y99ur323ssvtwhd7
