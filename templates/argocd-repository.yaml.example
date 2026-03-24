@@ -1,8 +1,0 @@
-# Use this template as the plaintext source for secrets/mistship/argocd-repository.sops.yaml.
-# Do not commit a real argocd-repository.yaml file with live SSH credentials.
-# The repository URL is rendered from ARGOCD_DEPLOY_REPO_NAME in scripts/render-gitops-entry.sh.
-# Update the hardcoded GitHub owner there if the private repo moves out of azuki774.
-sshPrivateKey: |
-  -----BEGIN OPENSSH PRIVATE KEY-----
-  replace-this-with-a-real-deploy-key
-  -----END OPENSSH PRIVATE KEY-----
