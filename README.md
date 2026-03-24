@@ -39,24 +39,6 @@ bash ./scripts/ops/prepare-cluster-access.sh
 2. `GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh` で `kubeconfig` を取得
 3. [docs/gitops-bootstrap.md](docs/gitops-bootstrap.md) で Calico と Argo CD を導入
 
-## ディレクトリ
-
-```text
-.
-├── docs/
-├── manifests/
-│   └── bootstrap/
-├── patches/
-├── scripts/
-├── secrets/
-│   └── mistship/
-├── templates/
-├── image.yml
-└── flake.nix
-```
-
-現時点では、暗号化済み cluster input の格納 path は `secrets/mistship/` のままです。repo 名の rename と path / env var の rename は分けて扱います。
-
 ## 秘密情報
 
 この repo に commit してよいのは、公開可能な定義と SOPS で暗号化した input だけです。平文 secret は `.secret/` にだけ置きます。
