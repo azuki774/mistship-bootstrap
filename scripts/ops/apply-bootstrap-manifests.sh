@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
 : "${KUBECONFIG:?Set KUBECONFIG before applying bootstrap manifests.}"
@@ -13,7 +13,7 @@ if [[ ! -f "$KUBECONFIG" ]]; then
 fi
 
 echo "::group::Apply Calico"
-./scripts/apply-calico.sh
+./scripts/ops/apply-calico.sh
 echo "::endgroup::"
 
 echo "::group::Apply Argo CD bootstrap manifest"

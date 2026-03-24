@@ -176,7 +176,7 @@ manifests/bootstrap/calico.
 
 - `README.md` と `docs/` だけなら、通常は `docs`
 - `flake.nix` による開発体験や既定値の修正は、通常は `fix(nix)` か `chore(nix)`。挙動修正なら `fix` を優先する
-- `scripts/prepare-cluster-access.sh` のような利用手順に直結する script 変更は、通常は `fix(scripts)` か `feat(scripts)`
+- `scripts/ops/prepare-cluster-access.sh` のような利用手順に直結する script 変更は、通常は `fix(scripts)` か `feat(scripts)`
 - `manifests/bootstrap/` の挙動修正は `fix(bootstrap)`、新規導入は `feat(bootstrap)`
 - repo rename や構造整理は `refactor(repo)` または `docs` を検討する
 

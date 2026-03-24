@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
 mapfile -t yaml_files < <(find manifests -type f \( -name '*.yaml' -o -name '*.yml' \) ! -name 'README.md' | sort)
@@ -65,7 +65,7 @@ if [[ -d "$argocd_dir" ]]; then
   yq eval -e '.resources[0] == "00-namespace.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
   yq eval -e '.resources[1] == "https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.4/manifests/install.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
   grep -F 'kubectl --kubeconfig "$KUBECONFIG" apply --server-side -k manifests/bootstrap/argocd' \
-    scripts/apply-bootstrap-manifests.sh >/dev/null
+    scripts/ops/apply-bootstrap-manifests.sh >/dev/null
 fi
 
 echo "Manifest validation passed."

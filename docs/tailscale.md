@@ -53,7 +53,7 @@ set -a
 source .secret/cluster-inputs.env
 set +a
 
-bash ./scripts/prepare-cluster-access.sh
+bash ./scripts/ops/prepare-cluster-access.sh
 ```
 
 `TAILSCALE_CONTROLPLANE_ENABLED=true` のとき、script は control plane 用の `ExtensionServiceConfig` を生成済み config に埋め込みます。

@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
 echo "::group::Validate manifests"
-bash ./scripts/validate-manifests.sh
+bash ./scripts/ops/validate-manifests.sh
 echo "::endgroup::"
 
 echo "::group::Validate docs"
@@ -14,10 +14,10 @@ bash ./scripts/check-doc-links.sh
 echo "::endgroup::"
 
 echo "::group::Validate shell scripts"
-bash -n ./scripts/apply-bootstrap-manifests.sh
+bash -n ./scripts/ops/apply-bootstrap-manifests.sh
 bash -n ./scripts/check-doc-links.sh
-bash -n ./scripts/decrypt-cluster-secrets.sh
-bash -n ./scripts/prepare-cluster-access.sh
+bash -n ./scripts/ops/decrypt-cluster-secrets.sh
+bash -n ./scripts/ops/prepare-cluster-access.sh
 echo "::endgroup::"
 
 echo "::group::Validate Talos patches"
@@ -57,7 +57,7 @@ export TAILSCALE_CONTROLPLANE_ACCEPT_DNS="false"
 mkdir -p "$GENERATED_CONFIG_DIR" "$tmpdir/nodes"
 
 talosctl gen secrets -o "$CLUSTER_SECRETS"
-bash ./scripts/prepare-cluster-access.sh
+bash ./scripts/ops/prepare-cluster-access.sh
 
 test -s "$CONTROL_PLANE_CONFIG"
 test -s "$WORKER_CONFIG"

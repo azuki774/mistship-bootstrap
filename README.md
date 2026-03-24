@@ -28,15 +28,15 @@
 
 ```bash
 nix develop
-bash ./scripts/decrypt-cluster-secrets.sh
+bash ./scripts/ops/decrypt-cluster-secrets.sh
 set -a; source .secret/cluster-inputs.env; set +a
-bash ./scripts/prepare-cluster-access.sh
+bash ./scripts/ops/prepare-cluster-access.sh
 ```
 
 その後は次の順で進めます。
 
 1. [docs/bootstrap.md](docs/bootstrap.md) で TalOS control plane を bootstrap
-2. `GENERATE_KUBECONFIG=true bash ./scripts/prepare-cluster-access.sh` で `kubeconfig` を取得
+2. `GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh` で `kubeconfig` を取得
 3. [docs/gitops-bootstrap.md](docs/gitops-bootstrap.md) で Calico と Argo CD を導入
 
 ## ディレクトリ
@@ -64,7 +64,7 @@ bash ./scripts/prepare-cluster-access.sh
 詳細:
 
 - [docs/secrets.md](docs/secrets.md)
-- [docs/commit-secret-reviewer.md](docs/commit-secret-reviewer.md)
+- [docs/agents/commit-secret-reviewer.md](docs/agents/commit-secret-reviewer.md)
 
 ## CI
 
@@ -81,5 +81,5 @@ GitHub Actions は検証専用で、cluster への deploy や apply はしませ
 - [docs/networking-stack.md](docs/networking-stack.md)
 - [docs/networking-migration.md](docs/networking-migration.md)
 - [docs/tailscale.md](docs/tailscale.md)
-- [docs/conventional-commit-writer.md](docs/conventional-commit-writer.md)
+- [docs/agents/conventional-commit-writer.md](docs/agents/conventional-commit-writer.md)
 - [manifests/bootstrap/README.md](manifests/bootstrap/README.md)
