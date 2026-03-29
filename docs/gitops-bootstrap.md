@@ -21,6 +21,10 @@ bash ./scripts/ops/apply-bootstrap-manifests.sh
 Argo CD の upstream manifest にはサイズの大きい CRD が含まれるため、client-side apply だと
 `metadata.annotations: Too long` で失敗し得ます。この repo では bootstrap 時に server-side apply を使います。
 
+`argocd-repo-server` には upstream manifest のままだと init container `copyutil` の symlink 作成が非冪等で、
+node reboot や pod sandbox 再生成後に `argocd-cmp-server` が既に存在すると復旧に失敗するケースがあります。
+この repo では overlay patch で `ln -sfn` に置き換え、再起動後も `repo-server` が自動復旧できるようにしています。
+
 ## 確認
 
 ```bash

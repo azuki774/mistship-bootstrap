@@ -4,3 +4,5 @@ namespace: argocd
 resources:
   - 00-namespace.yaml
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.4/manifests/install.yaml
+patches:
+  - path: patch-repo-server-init.yaml
