@@ -64,6 +64,13 @@ if [[ -d "$argocd_dir" ]]; then
   yq eval -e '.namespace == "argocd"' "$argocd_dir/kustomization.yaml" >/dev/null
   yq eval -e '.resources[0] == "00-namespace.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
   yq eval -e '.resources[1] == "https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.4/manifests/install.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
+  yq eval -e '.patches[0].path == "patch-repo-server-init.yaml"' "$argocd_dir/kustomization.yaml" >/dev/null
+  yq eval -e '.apiVersion == "apps/v1"' "$argocd_dir/patch-repo-server-init.yaml" >/dev/null
+  yq eval -e '.kind == "Deployment"' "$argocd_dir/patch-repo-server-init.yaml" >/dev/null
+  yq eval -e '.metadata.name == "argocd-repo-server"' "$argocd_dir/patch-repo-server-init.yaml" >/dev/null
+  yq eval -e '.spec.template.spec.initContainers[0].name == "copyutil"' "$argocd_dir/patch-repo-server-init.yaml" >/dev/null
+  yq eval -e '.spec.template.spec.initContainers[0].args[0] == "/bin/cp --update=none /usr/local/bin/argocd /var/run/argocd/argocd && /bin/ln -sfn /var/run/argocd/argocd /var/run/argocd/argocd-cmp-server"' \
+    "$argocd_dir/patch-repo-server-init.yaml" >/dev/null
   grep -F 'kubectl --kubeconfig "$KUBECONFIG" apply --server-side -k manifests/bootstrap/argocd' \
     scripts/ops/apply-bootstrap-manifests.sh >/dev/null
 fi
