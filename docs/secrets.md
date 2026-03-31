@@ -9,7 +9,7 @@
 - `secrets/mistship/cluster-inputs.sops.env`
 - `secrets/mistship/cluster-secrets.sops.yaml`
 
-`cluster-inputs.sops.env` には、必要なら Tailscale の auth key のような bootstrap 時の secret input も含められます。
+`cluster-inputs.sops.env` には、必要なら control plane / worker 用 Tailscale auth key のような bootstrap 時の secret input も含められます。
 その場合も平文は `.secret/cluster-inputs.env` にだけ復号します。
 
 ## Git に置かないもの

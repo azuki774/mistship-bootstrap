@@ -53,6 +53,11 @@ export TAILSCALE_CONTROLPLANE_HOSTNAME="mistship-ci-controlplane"
 export TAILSCALE_CONTROLPLANE_TAGS="tag:mistship-controlplane"
 export TAILSCALE_CONTROLPLANE_AUTH_ONCE="true"
 export TAILSCALE_CONTROLPLANE_ACCEPT_DNS="false"
+export TAILSCALE_WORKER_ENABLED="true"
+export TAILSCALE_WORKER_AUTHKEY="tskey-ci-worker"
+export TAILSCALE_WORKER_TAGS="tag:mistship-worker"
+export TAILSCALE_WORKER_AUTH_ONCE="true"
+export TAILSCALE_WORKER_ACCEPT_DNS="false"
 
 mkdir -p "$GENERATED_CONFIG_DIR" "$tmpdir/nodes"
 
@@ -64,6 +69,13 @@ test -s "$WORKER_CONFIG"
 test -s "$TALOSCONFIG"
 grep -q 'kind: ExtensionServiceConfig' "$CONTROL_PLANE_CONFIG"
 grep -q 'name: tailscale' "$CONTROL_PLANE_CONFIG"
+grep -q 'kind: ExtensionServiceConfig' "$WORKER_CONFIG"
+grep -q 'name: tailscale' "$WORKER_CONFIG"
+grep -q 'TS_AUTHKEY=tskey-ci-worker' "$WORKER_CONFIG"
+if grep -q 'TS_HOSTNAME=' "$WORKER_CONFIG"; then
+  echo "worker config should not set TS_HOSTNAME by default" >&2
+  exit 1
+fi
 
 echo "Patch validation passed."
 echo "::endgroup::"

@@ -53,13 +53,14 @@ yaml_single_quote() {
   printf "'%s'" "$value"
 }
 
-write_tailscale_controlplane_patch() {
+write_tailscale_patch() {
   local patch_path="$1"
-  local hostname="${TAILSCALE_CONTROLPLANE_HOSTNAME:-${CLUSTER_NAME}-controlplane}"
-  local auth_once="${TAILSCALE_CONTROLPLANE_AUTH_ONCE:-true}"
-  local accept_dns="${TAILSCALE_CONTROLPLANE_ACCEPT_DNS:-false}"
-  local tags="${TAILSCALE_CONTROLPLANE_TAGS:-}"
-  local extra_args="${TAILSCALE_CONTROLPLANE_EXTRA_ARGS:-}"
+  local authkey="$2"
+  local hostname="$3"
+  local auth_once="$4"
+  local accept_dns="$5"
+  local tags="$6"
+  local extra_args="$7"
   local combined_extra_args=""
 
   if [[ -n "$tags" ]]; then
@@ -79,10 +80,13 @@ write_tailscale_controlplane_patch() {
     printf '%s\n' 'kind: ExtensionServiceConfig'
     printf '%s\n' 'name: tailscale'
     printf '%s\n' 'environment:'
-    printf '  - %s\n' "$(yaml_single_quote "TS_AUTHKEY=$TAILSCALE_CONTROLPLANE_AUTHKEY")"
+    printf '  - %s\n' "$(yaml_single_quote "TS_AUTHKEY=$authkey")"
     printf '  - %s\n' "$(yaml_single_quote "TS_AUTH_ONCE=$auth_once")"
     printf '  - %s\n' "$(yaml_single_quote "TS_ACCEPT_DNS=$accept_dns")"
-    printf '  - %s\n' "$(yaml_single_quote "TS_HOSTNAME=$hostname")"
+
+    if [[ -n "$hostname" ]]; then
+      printf '  - %s\n' "$(yaml_single_quote "TS_HOSTNAME=$hostname")"
+    fi
 
     if [[ -n "$combined_extra_args" ]]; then
       printf '  - %s\n' "$(yaml_single_quote "TS_EXTRA_ARGS=$combined_extra_args")"
@@ -106,8 +110,34 @@ if [[ "${TAILSCALE_CONTROLPLANE_ENABLED:-false}" == "true" ]]; then
 
   mkdir -p "$GENERATED_CONFIG_DIR"
   tailscale_controlplane_patch="$GENERATED_CONFIG_DIR/tailscale-controlplane.yaml"
-  write_tailscale_controlplane_patch "$tailscale_controlplane_patch"
+  write_tailscale_patch \
+    "$tailscale_controlplane_patch" \
+    "$TAILSCALE_CONTROLPLANE_AUTHKEY" \
+    "${TAILSCALE_CONTROLPLANE_HOSTNAME:-${CLUSTER_NAME}-controlplane}" \
+    "${TAILSCALE_CONTROLPLANE_AUTH_ONCE:-true}" \
+    "${TAILSCALE_CONTROLPLANE_ACCEPT_DNS:-false}" \
+    "${TAILSCALE_CONTROLPLANE_TAGS:-}" \
+    "${TAILSCALE_CONTROLPLANE_EXTRA_ARGS:-}"
   controlplane_patch_args+=(--config-patch-control-plane "@$tailscale_controlplane_patch")
+fi
+
+if [[ "${TAILSCALE_WORKER_ENABLED:-false}" == "true" ]]; then
+  if [[ -z "${TAILSCALE_WORKER_AUTHKEY:-}" ]]; then
+    echo "TAILSCALE_WORKER_AUTHKEY is required when TAILSCALE_WORKER_ENABLED=true" >&2
+    exit 1
+  fi
+
+  mkdir -p "$GENERATED_CONFIG_DIR"
+  tailscale_worker_patch="$GENERATED_CONFIG_DIR/tailscale-worker.yaml"
+  write_tailscale_patch \
+    "$tailscale_worker_patch" \
+    "$TAILSCALE_WORKER_AUTHKEY" \
+    "${TAILSCALE_WORKER_HOSTNAME:-}" \
+    "${TAILSCALE_WORKER_AUTH_ONCE:-true}" \
+    "${TAILSCALE_WORKER_ACCEPT_DNS:-false}" \
+    "${TAILSCALE_WORKER_TAGS:-}" \
+    "${TAILSCALE_WORKER_EXTRA_ARGS:-}"
+  worker_patch_args+=(--config-patch-worker "@$tailscale_worker_patch")
 fi
 
 echo "::group::Generate Talos artifacts"
