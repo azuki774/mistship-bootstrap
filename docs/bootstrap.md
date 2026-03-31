@@ -9,8 +9,10 @@
 
 既存の暗号化済み input があるなら、この手順は不要です。
 
+初回だけ `direnv allow` を実行すると、この repo に入ったとき自動で `.#default` の dev shell が読み込まれます。`direnv` を使わない場合は、先に `nix develop` を実行してから同じ command を流します。
+
 ```bash
-nix develop
+direnv allow
 mkdir -p .secret/generated .secret/nodes
 cp ./templates/cluster-inputs.env.example .secret/cluster-inputs.env
 $EDITOR .secret/cluster-inputs.env
@@ -30,7 +32,7 @@ chmod 600 .secret/cluster-inputs.env .secret/cluster-secrets.yaml
 ## 1. 既存の暗号化済み input がある場合は復号する
 
 ```bash
-nix develop
+direnv allow
 export SOPS_AGE_KEY='AGE-SECRET-KEY-1...'
 bash ./scripts/ops/decrypt-cluster-secrets.sh
 ```

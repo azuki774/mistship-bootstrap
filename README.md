@@ -26,8 +26,10 @@
 
 ## 最短フロー
 
+初回だけ `direnv allow` を実行すると、この repo に入ったとき自動で `.#default` の dev shell が読み込まれます。`direnv` を使わない場合は、これまでどおり `nix develop` を実行します。
+
 ```bash
-nix develop
+direnv allow
 bash ./scripts/ops/decrypt-cluster-secrets.sh
 bash ./scripts/ops/prepare-cluster-access.sh
 ```
@@ -37,7 +39,7 @@ bash ./scripts/ops/prepare-cluster-access.sh
 初回 bootstrap でまだ input がない場合は、先に次を行います。
 
 ```bash
-nix develop
+direnv allow
 mkdir -p .secret/generated .secret/nodes
 cp ./templates/cluster-inputs.env.example .secret/cluster-inputs.env
 $EDITOR .secret/cluster-inputs.env
