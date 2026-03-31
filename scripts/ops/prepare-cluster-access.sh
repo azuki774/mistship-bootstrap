@@ -5,6 +5,48 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
+cluster_env_file="${MISTSHIP_CLUSTER_INPUTS_ENV_FILE:-$repo_root/.secret/cluster-inputs.env}"
+
+load_cluster_inputs() {
+  local required_vars=(
+    CLUSTER_NAME
+    CONTROL_PLANE_IP
+    CLUSTER_SECRETS
+    INSTALL_DISK
+    INSTALL_IMAGE
+    GENERATED_CONFIG_DIR
+    CONTROL_PLANE_CONFIG
+    WORKER_CONFIG
+    TALOSCONFIG
+  )
+  local missing_var=""
+  local var_name=""
+
+  for var_name in "${required_vars[@]}"; do
+    if [[ -z "${!var_name:-}" ]]; then
+      missing_var="$var_name"
+      break
+    fi
+  done
+
+  if [[ -z "$missing_var" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$cluster_env_file" ]]; then
+    echo "Missing required environment variable: $missing_var" >&2
+    echo "Also missing cluster input file: $cluster_env_file" >&2
+    exit 1
+  fi
+
+  set -a
+  # shellcheck disable=SC1090
+  source "$cluster_env_file"
+  set +a
+}
+
+load_cluster_inputs
+
 yaml_single_quote() {
   local value="$1"
   value=${value//\'/\'\"\'\"\'}
@@ -70,6 +112,7 @@ fi
 
 echo "::group::Generate Talos artifacts"
 talosctl gen config "$CLUSTER_NAME" "https://$CONTROL_PLANE_IP:6443" \
+  --force \
   --with-secrets "$CLUSTER_SECRETS" \
   --install-disk "$INSTALL_DISK" \
   --install-image "$INSTALL_IMAGE" \
@@ -80,7 +123,11 @@ talosctl gen config "$CLUSTER_NAME" "https://$CONTROL_PLANE_IP:6443" \
 
 cp "$GENERATED_CONFIG_DIR/controlplane.yaml" "$CONTROL_PLANE_CONFIG"
 cp "$GENERATED_CONFIG_DIR/worker.yaml" "$WORKER_CONFIG"
-cp "$GENERATED_CONFIG_DIR/talosconfig" "$TALOSCONFIG"
+if [[ ! -f "$TALOSCONFIG" || "${REGENERATE_TALOSCONFIG:-false}" == "true" ]]; then
+  cp "$GENERATED_CONFIG_DIR/talosconfig" "$TALOSCONFIG"
+fi
+talosctl config endpoint "$CONTROL_PLANE_IP" --talosconfig "$TALOSCONFIG" >/dev/null
+talosctl config node "$CONTROL_PLANE_IP" --talosconfig "$TALOSCONFIG" >/dev/null
 chmod 600 "$CONTROL_PLANE_CONFIG" "$WORKER_CONFIG" "$TALOSCONFIG"
 echo "::endgroup::"
 
