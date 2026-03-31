@@ -59,7 +59,7 @@ bash ./scripts/ops/prepare-cluster-access.sh
 - `.secret/nodes/controlplane.yaml`
 - `.secret/nodes/worker.yaml`
 
-control plane を Tailscale に参加させる場合は、`cluster-inputs.env` に `TAILSCALE_CONTROLPLANE_*` を入れたうえで同じ script を使います。
+control plane や worker を Tailscale に参加させる場合は、`cluster-inputs.env` に role ごとの `TAILSCALE_CONTROLPLANE_*` / `TAILSCALE_WORKER_*` を入れたうえで同じ script を使います。
 詳細は [docs/tailscale.md](tailscale.md) を参照してください。
 
 ## 3. control plane に適用する
@@ -102,7 +102,27 @@ talosctl get staticpods \
   --nodes "$CONTROL_PLANE_IP"
 ```
 
-## 5. kubeconfig を取る
+## 5. worker を追加する
+
+worker node を maintenance mode で起動したら、生成済みの `worker.yaml` をそのまま適用します。
+
+```bash
+talosctl apply-config --insecure --nodes "$WORKER_IP" --file "$WORKER_CONFIG"
+```
+
+worker を Tailscale に参加させる場合は、事前に `TAILSCALE_WORKER_ENABLED=true` と `TAILSCALE_WORKER_AUTHKEY` などを入れて `prepare-cluster-access.sh` を再実行しておきます。
+`TAILSCALE_WORKER_HOSTNAME` は空のままだと `worker.yaml` に `TS_HOSTNAME` を書かないため、同じ config を複数 worker へ再利用しやすくなります。
+
+適用後の確認例:
+
+```bash
+talosctl version \
+  --talosconfig "$TALOSCONFIG" \
+  --endpoints "$CONTROL_PLANE_IP" \
+  --nodes "$WORKER_IP"
+```
+
+## 6. kubeconfig を取る
 
 ```bash
 GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh

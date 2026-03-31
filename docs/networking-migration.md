@@ -46,6 +46,12 @@ GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh
 bash ./scripts/ops/apply-bootstrap-manifests.sh
 ```
 
+worker を戻す場合は、生成済み `worker.yaml` を個別 node に適用します。
+
+```bash
+talosctl apply-config --insecure --nodes "$WORKER_IP" --file "$WORKER_CONFIG"
+```
+
 ## 収束確認
 
 ```bash
