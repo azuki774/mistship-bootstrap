@@ -29,7 +29,20 @@
 ```bash
 nix develop
 bash ./scripts/ops/decrypt-cluster-secrets.sh
-set -a; source .secret/cluster-inputs.env; set +a
+bash ./scripts/ops/prepare-cluster-access.sh
+```
+
+これは、すでに SOPS 暗号化済み input がある場合の手順です。暗号化済み input が default path の `secrets/mistship/` 以外にある場合は、`MISTSHIP_CLUSTER_INPUTS_SOPS_FILE` と `MISTSHIP_CLUSTER_SECRETS_SOPS_FILE` を指定して復号します。
+
+初回 bootstrap でまだ input がない場合は、先に次を行います。
+
+```bash
+nix develop
+mkdir -p .secret/generated .secret/nodes
+cp ./templates/cluster-inputs.env.example .secret/cluster-inputs.env
+$EDITOR .secret/cluster-inputs.env
+talosctl gen secrets -o .secret/cluster-secrets.yaml
+chmod 600 .secret/cluster-inputs.env .secret/cluster-secrets.yaml
 bash ./scripts/ops/prepare-cluster-access.sh
 ```
 
@@ -38,6 +51,8 @@ bash ./scripts/ops/prepare-cluster-access.sh
 1. [docs/bootstrap.md](docs/bootstrap.md) で TalOS control plane を bootstrap
 2. `GENERATE_KUBECONFIG=true bash ./scripts/ops/prepare-cluster-access.sh` で `kubeconfig` を取得
 3. [docs/gitops-bootstrap.md](docs/gitops-bootstrap.md) で Calico と Argo CD を導入
+
+`prepare-cluster-access.sh` は再実行できます。既存の `talosconfig` は既定で温存され、`REGENERATE_TALOSCONFIG=true` を付けたときだけ再生成します。
 
 ## 秘密情報
 

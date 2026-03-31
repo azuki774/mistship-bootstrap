@@ -49,10 +49,6 @@ TAILSCALE_CONTROLPLANE_ACCEPT_DNS=false
 ## 3. TalOS config を生成する
 
 ```bash
-set -a
-source .secret/cluster-inputs.env
-set +a
-
 bash ./scripts/ops/prepare-cluster-access.sh
 ```
 
