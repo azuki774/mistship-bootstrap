@@ -47,9 +47,6 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v21
 
-      - name: Configure Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
-
       - name: Run Talos preflight checks in dev shell
         # PR-safe validation only. This job never decrypts real cluster secrets.
-        run: nix develop .#default --command bash ./scripts/ci/talos-preflight.sh
+        run: nix develop .#ci --command bash ./scripts/ci/talos-preflight.sh

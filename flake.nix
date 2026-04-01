@@ -94,6 +94,14 @@
               echo "  KUBECONFIG=$KUBECONFIG"
             '';
           };
+          ci = pkgs.mkShell {
+            packages = with pkgs; [
+              kubeconform
+              talhelper
+              talosctlPinned
+              yq-go
+            ];
+          };
         });
 
       formatter = forAllSystems (system:
