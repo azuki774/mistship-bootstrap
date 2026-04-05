@@ -47,6 +47,8 @@ load_cluster_inputs() {
 
 load_cluster_inputs
 
+control_plane_endpoint="${CONTROL_PLANE_ENDPOINT:-$CONTROL_PLANE_IP}"
+
 yaml_single_quote() {
   local value="$1"
   value=${value//\'/\'\"\'\"\'}
@@ -141,7 +143,7 @@ if [[ "${TAILSCALE_WORKER_ENABLED:-false}" == "true" ]]; then
 fi
 
 echo "::group::Generate Talos artifacts"
-talosctl gen config "$CLUSTER_NAME" "https://$CONTROL_PLANE_IP:6443" \
+talosctl gen config "$CLUSTER_NAME" "https://$control_plane_endpoint:6443" \
   --force \
   --with-secrets "$CLUSTER_SECRETS" \
   --install-disk "$INSTALL_DISK" \
@@ -156,8 +158,8 @@ cp "$GENERATED_CONFIG_DIR/worker.yaml" "$WORKER_CONFIG"
 if [[ ! -f "$TALOSCONFIG" || "${REGENERATE_TALOSCONFIG:-false}" == "true" ]]; then
   cp "$GENERATED_CONFIG_DIR/talosconfig" "$TALOSCONFIG"
 fi
-talosctl config endpoint "$CONTROL_PLANE_IP" --talosconfig "$TALOSCONFIG" >/dev/null
-talosctl config node "$CONTROL_PLANE_IP" --talosconfig "$TALOSCONFIG" >/dev/null
+talosctl config endpoint "$control_plane_endpoint" --talosconfig "$TALOSCONFIG" >/dev/null
+talosctl config node "$control_plane_endpoint" --talosconfig "$TALOSCONFIG" >/dev/null
 chmod 600 "$CONTROL_PLANE_CONFIG" "$WORKER_CONFIG" "$TALOSCONFIG"
 echo "::endgroup::"
 
@@ -167,8 +169,8 @@ if [[ "${GENERATE_KUBECONFIG:-false}" == "true" ]]; then
     --merge=false \
     --force \
     --talosconfig "$TALOSCONFIG" \
-    --endpoints "$CONTROL_PLANE_IP" \
-    --nodes "$CONTROL_PLANE_IP"
+    --endpoints "$control_plane_endpoint" \
+    --nodes "$control_plane_endpoint"
   chmod 600 "$KUBECONFIG"
   echo "::endgroup::"
 fi

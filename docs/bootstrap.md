@@ -24,8 +24,12 @@ chmod 600 .secret/cluster-inputs.env .secret/cluster-secrets.yaml
 
 - `CLUSTER_NAME`
 - `CONTROL_PLANE_IP`
+- `CONTROL_PLANE_ENDPOINT`
 - `INSTALL_DISK`
 - `INSTALL_IMAGE`
+
+`CONTROL_PLANE_IP` は maintenance mode の `apply-config --insecure` 用です。
+`CONTROL_PLANE_ENDPOINT` は bootstrap 後に使う Talos API / Kubernetes API の正規 endpoint で、現状は `mistship-cp.azuki.blue` を使います。
 
 この平文 input を Git に置きたくない場合は、後で [docs/secrets.md](secrets.md) の手順で SOPS 暗号化済み input に変換します。
 
@@ -75,8 +79,8 @@ maintenance mode を抜けたら通常接続で確認します。
 ```bash
 talosctl version \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 ```
 
 ## 4. bootstrap する
@@ -84,8 +88,8 @@ talosctl version \
 ```bash
 talosctl bootstrap \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 ```
 
 確認例:
@@ -93,13 +97,13 @@ talosctl bootstrap \
 ```bash
 talosctl service etcd \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 
 talosctl get staticpods \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 ```
 
 ## 5. worker を追加する
@@ -118,7 +122,7 @@ worker を Tailscale に参加させる場合は、事前に `TAILSCALE_WORKER_E
 ```bash
 talosctl version \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
   --nodes "$WORKER_IP"
 ```
 
