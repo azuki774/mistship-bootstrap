@@ -21,6 +21,10 @@ bash ./scripts/ops/apply-bootstrap-manifests.sh
 Argo CD の upstream manifest にはサイズの大きい CRD が含まれるため、client-side apply だと
 `metadata.annotations: Too long` で失敗し得ます。この repo では bootstrap 時に server-side apply を使います。
 
+Calico bootstrap では、`tigera-operator` が初期段階で cluster DNS に依存しないよう、
+`kubernetes` Service の ready endpoint IP を `KUBERNETES_SERVICE_HOST` として優先して渡します。
+`kubeconfig` の server が FQDN でも、そのまま名前解決へ依存しません。
+
 `argocd-repo-server` には upstream manifest のままだと init container `copyutil` の symlink 作成が非冪等で、
 node reboot や pod sandbox 再生成後に `argocd-cmp-server` が既に存在すると復旧に失敗するケースがあります。
 この repo では overlay patch で `ln -sfn` に置き換え、再起動後も `repo-server` が自動復旧できるようにしています。
@@ -43,7 +47,6 @@ Argo CD の初期 admin password を見る場合:
 ```bash
 kubectl --kubeconfig "$KUBECONFIG" -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath='{.data.password}' | base64 -d
-echo
 ```
 
 この repo の責務はここまでです。Argo CD 導入後の継続反映は別の deploy repo に渡します。
