@@ -81,4 +81,5 @@ GitHub Actions は検証専用で、cluster への deploy や apply はしませ
 - [docs/networking-migration.md](docs/networking-migration.md)
 - [docs/tailscale.md](docs/tailscale.md)
 - [docs/agents/conventional-commit-writer.md](docs/agents/conventional-commit-writer.md)
+- [docs/agents/pull-request-creator.md](docs/agents/pull-request-creator.md)
 - [manifests/bootstrap/README.md](manifests/bootstrap/README.md)
