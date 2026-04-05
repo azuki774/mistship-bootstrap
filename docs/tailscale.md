@@ -86,13 +86,13 @@ TalOS 側:
 ```bash
 talosctl get extensionserviceconfigs \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 
 talosctl get addresses \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 ```
 
 見たいもの:

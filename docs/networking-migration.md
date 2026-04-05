@@ -35,8 +35,8 @@ talosctl apply-config --insecure --nodes "$CONTROL_PLANE_IP" --file "$CONTROL_PL
 
 talosctl bootstrap \
   --talosconfig "$TALOSCONFIG" \
-  --endpoints "$CONTROL_PLANE_IP" \
-  --nodes "$CONTROL_PLANE_IP"
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 ```
 
 その後:
