@@ -108,10 +108,22 @@ talosctl get staticpods \
 
 ## 5. worker を追加する
 
-worker node を maintenance mode で起動したら、生成済みの `worker.yaml` をそのまま適用します。
+ワーカー node を maintenance mode で起動したら、生成済みの `worker.yaml` をそのまま適用します。
+
+`cluster-inputs.env` の `WORKER_IPS` に全ワーカーの IP をスペース区切りのリストで記入しておきます。
 
 ```bash
-talosctl apply-config --insecure --nodes "$WORKER_IP" --file "$WORKER_CONFIG"
+WORKER_IPS="192.0.2.21 192.0.2.22"
+```
+
+`prepare-cluster-access.sh` を実行すると `talosconfig` が更新され、全ワーカーが endpoints と nodes に登録されます。
+
+各ワーカーへは個別に config を apply します。
+
+```bash
+for ip in $WORKER_IPS; do
+  talosctl apply-config --insecure --nodes "$ip" --file "$WORKER_CONFIG"
+done
 ```
 
 worker を Tailscale に参加させる場合は、事前に `TAILSCALE_WORKER_ENABLED=true` と `TAILSCALE_WORKER_AUTHKEY` などを入れて `prepare-cluster-access.sh` を再実行しておきます。
