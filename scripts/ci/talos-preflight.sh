@@ -58,6 +58,7 @@ export TAILSCALE_WORKER_AUTHKEY="tskey-ci-worker"
 export TAILSCALE_WORKER_TAGS="tag:mistship-worker"
 export TAILSCALE_WORKER_AUTH_ONCE="true"
 export TAILSCALE_WORKER_ACCEPT_DNS="false"
+export WORKER_IPS=""
 
 mkdir -p "$GENERATED_CONFIG_DIR" "$tmpdir/nodes"
 

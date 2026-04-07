@@ -158,8 +158,20 @@ cp "$GENERATED_CONFIG_DIR/worker.yaml" "$WORKER_CONFIG"
 if [[ ! -f "$TALOSCONFIG" || "${REGENERATE_TALOSCONFIG:-false}" == "true" ]]; then
   cp "$GENERATED_CONFIG_DIR/talosconfig" "$TALOSCONFIG"
 fi
-talosctl config endpoint "$control_plane_endpoint" --talosconfig "$TALOSCONFIG" >/dev/null
-talosctl config node "$control_plane_endpoint" --talosconfig "$TALOSCONFIG" >/dev/null
+if [[ -n "${WORKER_IPS:-}" ]]; then
+  endpoints="$control_plane_endpoint"
+  nodes="$control_plane_endpoint"
+  for ip in $WORKER_IPS; do
+    endpoints+=",$ip"
+    nodes+=",$ip"
+  done
+else
+  endpoints="$control_plane_endpoint"
+  nodes="$control_plane_endpoint"
+fi
+
+talosctl config endpoint "$endpoints" --talosconfig "$TALOSCONFIG" >/dev/null
+talosctl config node "$nodes" --talosconfig "$TALOSCONFIG" >/dev/null
 chmod 600 "$CONTROL_PLANE_CONFIG" "$WORKER_CONFIG" "$TALOSCONFIG"
 echo "::endgroup::"
 
