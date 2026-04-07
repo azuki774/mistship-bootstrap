@@ -1,5 +1,5 @@
 # 708747e350d604ae9e57227d8dcf274091453ddb1097b765d4ea8884f1992c1f
-# https://factory.talos.dev/image/708747e350d604ae9e57227d8dcf274091453ddb1097b765d4ea8884f1992c1f/v1.12.6/metal-amd64.qcow2
+# https://pxe.factory.talos.dev/pxe/708747e350d604ae9e57227d8dcf274091453ddb1097b765d4ea8884f1992c1f/v1.12.6/metal-amd64
 # https://factory.talos.dev/image/708747e350d604ae9e57227d8dcf274091453ddb1097b765d4ea8884f1992c1f/v1.12.6/oracle-arm64.qcow2
 customization:
     systemExtensions:
