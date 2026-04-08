@@ -5,7 +5,7 @@ machine:
       advertiseKubernetesNetworks: false
   install:
     disk: /dev/sda
-    image: factory.talos.dev/installer/077514df2c1b6436460bc60faabc976687b16193b8a1290fda4366c69024fec2:v1.12.6
+    image: factory.talos.dev/installer/708747e350d604ae9e57227d8dcf274091453ddb1097b765d4ea8884f1992c1f:v1.12.6
     wipe: false
     grubUseUKICmdline: true
   features:
