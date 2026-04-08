@@ -50,6 +50,34 @@ CI は実 secret を復号しません。dummy 値で生成経路だけ確認し
 - private key は repo に置かない
 - recipient を変えるときは `sops updatekeys` を使う
 
+## `.secret/cluster-inputs.env` を暗号化する
+
+`.secret/cluster-inputs.env` を編集したら、次の手順で `secrets/mistship/cluster-inputs.sops.env` を更新します。
+
+```bash
+mkdir -p secrets/mistship
+sops encrypt \
+  --filename-override .secret/cluster-inputs.env \
+  --input-type dotenv \
+  --output-type dotenv \
+  .secret/cluster-inputs.env \
+  > secrets/mistship/cluster-inputs.sops.env
+```
+
+ポイント:
+
+- `--filename-override .secret/cluster-inputs.env` を付けると、`.sops.yaml` の `path_regex` に合う rule を使って暗号化できます
+- `--input-type dotenv --output-type dotenv` を付けると、env 形式のまま暗号化済み file を出力できます
+- 出力先は Git に置く `secrets/mistship/cluster-inputs.sops.env` です
+
+暗号化後は、必要に応じて内容を確認します。
+
+```bash
+sops decrypt --output-type dotenv secrets/mistship/cluster-inputs.sops.env
+```
+
+平文を repo 外へ退避しない運用なら、確認後に `.secret/cluster-inputs.env` の権限と配置を見直し、不要なら削除します。
+
 ## 初回投入
 
 1. `.sops.yaml` に public key を入れる
