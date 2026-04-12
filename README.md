@@ -76,6 +76,7 @@ GitHub Actions は検証専用で、cluster への deploy や apply はしませ
 
 - [docs/bootstrap.md](docs/bootstrap.md)
 - [docs/gitops-bootstrap.md](docs/gitops-bootstrap.md)
+- [docs/auth0-oidc.md](docs/auth0-oidc.md)
 - [docs/secrets.md](docs/secrets.md)
 - [docs/networking-stack.md](docs/networking-stack.md)
 - [docs/networking-migration.md](docs/networking-migration.md)

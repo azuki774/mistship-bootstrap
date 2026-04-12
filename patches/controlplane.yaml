@@ -1,6 +1,12 @@
 cluster:
   allowSchedulingOnControlPlanes: true
   apiServer:
+    extraArgs:
+      oidc-client-id: x33YdbDxOrVfflDOdNmyLy6wCDgWCPGN
+      oidc-groups-claim: https://mistship-cp.azuki.blue/groups
+      oidc-groups-prefix: "-"
+      oidc-issuer-url: https://azk.jp.auth0.com/
+      oidc-username-claim: email
     certSANs:
       - mistship-cp.azuki.blue
 machine:
