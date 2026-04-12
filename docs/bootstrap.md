@@ -63,6 +63,9 @@ bash ./scripts/ops/prepare-cluster-access.sh
 - `.secret/nodes/controlplane.yaml`
 - `.secret/nodes/worker.yaml`
 
+生成される `controlplane.yaml` には、この repo で管理している Auth0 OIDC 用の `kube-apiserver` 設定も含まれます。
+詳細は [docs/auth0-oidc.md](auth0-oidc.md) を参照してください。
+
 control plane や worker を Tailscale に参加させる場合は、`cluster-inputs.env` に role ごとの `TAILSCALE_CONTROLPLANE_*` / `TAILSCALE_WORKER_*` を入れたうえで同じ script を使います。
 詳細は [docs/tailscale.md](tailscale.md) を参照してください。
 
