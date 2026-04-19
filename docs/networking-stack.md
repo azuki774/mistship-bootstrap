@@ -44,6 +44,7 @@
 ## 実装上の前提
 
 - `KubeSpan` は node-to-node 通信用の WireGuard として使う
+- `KubeSpan` は通常の node-to-node 経路の唯一の overlay とし、`tailscale0` は管理アクセス専用に寄せる
 - Pod ネットワークと `NetworkPolicy` は `Calico` に任せる
 - Service 転送は `Calico eBPF` に任せる
 - `kube-proxy` は導入しない
@@ -54,50 +55,16 @@ TalOS 側では、`cluster.network.cni.name` を `none` にする前提で構成
 `KubeSpan` では `advertiseKubernetesNetworks` を有効化しません。
 `Calico` は Pod IP を独自に扱うため、この設定を併用しない前提で設計します。
 
-## 採用しなかった案
+`KubeSpan` の endpoint には Tailscale の address range を載せません。
+TalOS の `filters.endpoints` で `100.64.0.0/10` と `fd7a:115c:a1e0::/48` を除外し、通常の node 間通信を `tailscale0` に乗せない前提で運用します。
 
-### `KubeSpan + TalOS-managed Flannel`
-
-採用しません。
-
-理由:
-
-- `Flannel` 単体では `NetworkPolicy` を実装しない
-- 今回の要件では不足する
-
-### `KubeSpan + Canal`
-
-採用しません。
-
-理由:
-
-- `Canal` は堅実だが、今回は `Calico eBPF` の機能を優先する
-- `Flannel` dataplane を残す必然がなくなった
-
-### `KubeSpan + Calico NFTables`
-
-今回は第一候補にしません。
-
-理由:
-
-- より保守的で切り分けしやすいが、今回は `eBPF` 構成を優先する
-
-補足:
-
-- `Calico NFTables` は、`eBPF` 構成が期待どおりに安定しない場合の第一ロールバック先とする
-
-### `Kilo + WireGuard`
-
-採用しません。
-
-理由:
-
-- TalOS では `KubeSpan` が同系統の用途をより直接的に満たす
-- このクラスタでまず必要なのは multi-cluster 機能ではない
+`allowDownPeerBypass` は無効のまま運用します。
+`KubeSpan` が不通でも平文経路へ自動で逃がさないことで、node 間暗号化の前提を崩さないようにします。
 
 ## 運用メモ
 
 - `KubeSpan` 用に UDP `51820` を通す
+- `Tailscale` は TalOS API や緊急時の管理アクセスにだけ使い、通常の node-to-node 通信には使わない
 - TalOS ingress firewall patch 自体はこの repo では管理せず、private repo 側で別管理する
 - `Calico eBPF` は `kube-proxy` なし前提なので、bootstrap 手順と manifest 適用順を固定する
 
@@ -107,15 +74,12 @@ TalOS 側では、`cluster.network.cni.name` を `none` にする前提で構成
 - 問題が起きたとき、切り分けは `NFTables` より難しくなる
 - `KubeSpan` と `Calico` の責務分担を崩す設定を入れると、経路問題の調査が難しくなる
 
-## 見直し条件
+## 現在の懸念
 
-次のいずれかが発生した場合は、この判断を見直します。
+現時点で、`KubeSpan` と `Calico` の組み合わせで経路または MTU 問題が再現していると見ています。
+そのため、通常の node-to-node 通信は `KubeSpan` に寄せたまま、`tailscale0` を通常経路の候補から外して切り分ける前提で進めます。
 
-- `Calico eBPF` で安定運用できない
-- `kube-proxy` なし構成の運用負荷が高い
-- `KubeSpan` と `Calico` の組み合わせで経路または MTU 問題が継続する
-- `Calico NFTables` へ下げる方が合理的だと判断した
-- TalOS 側の標準的な推奨構成が大きく変わった
+この切り分けでも問題が残る場合は、underlay MTU の再確認と `kubespan.mtu` の調整を次の候補にします。
 
 ## 参考
 
