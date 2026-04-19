@@ -3,4 +3,5 @@ kind: FelixConfiguration
 metadata:
   name: default
 spec:
-  cgroupV2Path: /sys/fs/cgroup
+  cgroupV2Path: /sys/fs/cgroup # TalOS の cgroup v2 mount を Felix に明示する
+  vxlanMTU: 1370 # kubespan MTU 1420 の上で VXLAN 分を見込んだ Pod network MTU

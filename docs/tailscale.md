@@ -93,12 +93,24 @@ talosctl get addresses \
   --talosconfig "$TALOSCONFIG" \
   --endpoints "$CONTROL_PLANE_ENDPOINT" \
   --nodes "$CONTROL_PLANE_ENDPOINT"
+
+talosctl get kubespanpeerspecs \
+  --talosconfig "$TALOSCONFIG" \
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
+
+talosctl get kubespanendpoints \
+  --talosconfig "$TALOSCONFIG" \
+  --endpoints "$CONTROL_PLANE_ENDPOINT" \
+  --nodes "$CONTROL_PLANE_ENDPOINT"
 ```
 
 見たいもの:
 
 - `ExtensionServiceConfig` に `tailscale` がある
 - `tailscale0` interface がある
+- `kubespanpeerspecs` の peer が `up` になっている
+- `kubespanendpoints` に Tailscale の `100.x` や `fd7a:115c:a1e0::/48` が通常経路として出てこない
 
 Tailscale admin 側:
 
@@ -111,5 +123,14 @@ Tailscale admin 側:
 ## 補足
 
 - `KubeSpan` は node 間メッシュのまま維持します。Tailscale は管理アクセスの追加経路です。
+- `patches/common.yaml` では `KubeSpan` の `filters.endpoints` で Tailscale の address range を除外し、通常の node-to-node 通信を `tailscale0` に寄せません。
+- `allowDownPeerBypass=false` を明示し、`KubeSpan` が張れていない peer へ平文経路で逃がしません。
 - `TS_ACCEPT_DNS=false` を既定にしています。TalOS 側で `hostDNS` を使っているため、最初から tailnet DNS を被せません。
 - `TAILSCALE_*_TAGS` は `tailscale up --advertise-tags=...` へ変換されます。
+- `KubeSpan` の MTU は TalOS の既定値 `1420` を前提にしています。underlay MTU が `1500` 未満と分かった場合だけ、別作業で `kubespan.mtu` を調整します。
+
+## 切り戻し
+
+- `tailscale0` を node 間通信の候補へ戻したい場合は、`patches/common.yaml` から `filters.endpoints` の Tailscale 除外を外して TalOS config を再生成し、各 node へ再適用します。
+- 変更後に node 間疎通が悪化した場合は、変更前の machine config を再適用して戻します。
+- Tailscale extension 自体は削除していないため、切り戻し時も管理アクセス経路はそのまま使えます。

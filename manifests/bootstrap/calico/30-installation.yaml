@@ -3,16 +3,18 @@ kind: Installation
 metadata:
   name: default
 spec:
-  variant: Calico
+  variant: Calico # OSS 版の Calico を使う
   calicoNetwork:
-    linuxDataplane: BPF
-    kubeProxyManagement: Enabled
-    bgp: Disabled
+    linuxDataplane: BPF # Service 転送も含めて Calico eBPF dataplane を使う
+    kubeProxyManagement: Enabled # kube-proxy を置かずに Calico が Service 処理を担う
+    bgp: Disabled # node 間経路交換は BGP ではなく overlay に寄せる
+    nodeAddressAutodetectionV4:
+      skipInterface: ^tailscale0$ # tailscale0 を node IP 自動検出の候補から外し、underlay 側の address を使わせる
     ipPools:
-      - name: default-ipv4-ippool
-        blockSize: 26
-        cidr: 10.244.0.0/16
-        encapsulation: VXLAN
-        natOutgoing: Enabled
-        nodeSelector: all()
-  kubeletVolumePluginPath: None
+      - name: default-ipv4-ippool # cluster 全体で使う既定の Pod IPv4 pool
+        blockSize: 26 # node ごとに /26 単位で Pod IP を割り当てる
+        cidr: 10.244.0.0/16 # Pod network 全体の CIDR
+        encapsulation: VXLAN # Pod 通信の overlay は VXLAN を維持する
+        natOutgoing: Enabled # cluster 外向き通信は node 側 IP へ NAT する
+        nodeSelector: all() # 全 node をこの IP pool の対象にする
+  kubeletVolumePluginPath: None # TalOS では flex volume plugin path を使わない

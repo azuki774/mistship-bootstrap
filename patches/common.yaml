@@ -2,7 +2,14 @@ machine:
   network:
     kubespan:
       enabled: true
+      allowDownPeerBypass: false
       advertiseKubernetesNetworks: false
+      filters:
+        endpoints:
+          - 0.0.0.0/0
+          - '!100.64.0.0/10' # tailscale ranges
+          - ::/0
+          - '!fd7a:115c:a1e0::/48'
   install:
     disk: /dev/sda
     image: factory.talos.dev/installer/708747e350d604ae9e57227d8dcf274091453ddb1097b765d4ea8884f1992c1f:v1.12.6
