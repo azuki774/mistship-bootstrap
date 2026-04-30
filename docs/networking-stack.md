@@ -58,6 +58,10 @@ TalOS 側では、`cluster.network.cni.name` を `none` にする前提で構成
 `KubeSpan` の endpoint には Tailscale の address range を載せません。
 TalOS の `filters.endpoints` で `100.64.0.0/10` と `fd7a:115c:a1e0::/48` を除外し、通常の node 間通信を `tailscale0` に乗せない前提で運用します。
 
+Kubernetes の NodeInternalIP も Tailscale の address range を候補から外します。
+TalOS の `machine.kubelet.nodeIP.validSubnets` では `100.64.0.0/10` を除外し、public repository には実 node subnet を列挙しません。
+Calico の node address autodetection は `skipInterface: ^tailscale0$` を使い、Tailscale ではなく underlay 側の address を選ばせます。
+
 `allowDownPeerBypass` は無効のまま運用します。
 `KubeSpan` が不通でも平文経路へ自動で逃がさないことで、node 間暗号化の前提を崩さないようにします。
 
